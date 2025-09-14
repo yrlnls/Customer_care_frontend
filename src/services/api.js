@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://customer-care-backend-v2n0.onrender.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'subject': 'default',
   },
 });
 
