@@ -1,0 +1,27 @@
+/* Existing global styles */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Add pulsing animation for markers */
+.pulsing-marker {
+  animation: pulse 2s infinite;
+  transform-origin: center;
+  filter: drop-shadow(0 0 4px rgba(12, 13, 102, 0.8));
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Ensure markers stay visible on all layers */
+.leaflet-marker-icon {
+  z-index: 1000 !important;
+}

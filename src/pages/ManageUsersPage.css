@@ -1,0 +1,47 @@
+.btn-group .btn-sm {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(0,0,0,0.125);
+  margin: 0 0.25rem;
+}
+
+.btn-group .btn-sm:hover {
+  background-color: rgba(0,0,0,0.075);
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+}
+
+.btn-primary:hover {
+  background-color: #0d6efd;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.action-button {
+  margin: 0 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.action-button:hover {
+  background-color: rgba(0,0,0,0.075);
+}
+
+.action-button i {
+  margin-right: 0.25rem;
+}
+
+.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+  background-color: #e9ecef;
+  color: #0d6efd;
+}

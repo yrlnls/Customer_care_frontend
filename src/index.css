@@ -1,0 +1,184 @@
+/* Updated color scheme with darker background */
+:root {
+  --bg-primary: #6179d9; /* Dark blue-gray */
+  --bg-secondary: #252836; /* Slightly lighter dark blue-gray */
+  --text-primary: #e9ecef;
+  --text-secondary: #ffffff;
+  --border-color: #495057;
+  --primary-color: #000000;
+  --secondary-color: #404a5a;
+  --success-color: #4cc9f0;
+  --danger-color: #ff6b6b;
+  --warning-color: #ffd166;
+  --info-color: #06d6a0;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --transition: all 0.3s ease;
+}
+
+
+
+/* Base styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Tailwind-friendly utility classes using variables */
+.bg-primary { background-color: var(--bg-primary) !important; }
+.bg-secondary { background-color: var(--bg-secondary) !important; }
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.border-color { border-color: var(--border-color) !important; }
+
+/* Card styling */
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form styling */
+.form-control {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+}
+
+/* Button styling */
+.btn {
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+/* Table styling */
+.table {
+  color: var(--text-primary);
+}
+
+.table th {
+  background-color: var(--bg-secondary);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(67, 97, 238, 0.1);
+}
+
+/* Modal styling */
+.modal-content {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+/* Tab styling */
+.nav-tabs .nav-link {
+  
+  color: var();
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  background: transparent;
+}
+
+/* Utility spacing */
+.container { max-width: 1200px; }
+.mt-6 { margin-top: 4rem; }
+.p-5 { padding: 3rem; }
+
+/* Custom tabs styling */
+.custom-tabs .nav-link {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.custom-tabs .nav-link.active {
+  color: var(--primary-color);
+  background-color: rgba(67, 97, 238, 0.1);
+  border-bottom: 3px solid var(--primary-color);
+}
+
+.custom-tabs .nav-link:hover:not(.active) {
+  color: var(--primary-color);
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+/* Login page styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+}
+/* Consistent alignment for all content */
+.container-main {
+  max-width: 100%fit-content;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Navbar alignment */
+.navbar .container {
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+/* Body content alignment */
+.page-content {
+  padding: 0 0px;
+}
