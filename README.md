@@ -72,6 +72,41 @@ customer-care-app/
 - **Chart.js** for data visualization
 - **React Icons** for iconography
 
+## Deployment
+
+### Netlify Deployment
+
+1. Build the project:
+```bash
+npm run build
+```
+
+2. Deploy the `dist` folder to Netlify.
+
+3. Set environment variables in Netlify dashboard:
+   - `VITE_API_BASE_URL`: Set to your backend API URL (e.g., `https://customer-care-backend-v2n0.onrender.com/api`)
+
+### CORS Configuration
+
+Since the frontend is hosted on Netlify and the backend on Render, ensure the Flask backend has CORS enabled to allow requests from your Netlify domain.
+
+In your Flask backend (separate repo), install `flask-cors` and configure it:
+
+```python
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app, origins=["https://your-netlify-site.netlify.app"])  # Replace with your actual Netlify URL
+```
+
+Or for more flexibility:
+
+```python
+CORS(app, origins=["*"])  # Allow all origins (use with caution in production)
+```
+
+Test backend connectivity using the provided `test_backend_routes.py` script.
+
 ## Available Scripts
 
 - `npm run dev` - Start development server
