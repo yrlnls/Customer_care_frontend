@@ -25,8 +25,8 @@ const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMod
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        lat: initialData.lat || '',
-        lng: initialData.lng || '',
+        lat: initialData.latitude || initialData.lat || '',
+        lng: initialData.longitude || initialData.lng || '',
         description: initialData.description || '',
         type: initialData.type || 'office',
         status: initialData.status || 'active',

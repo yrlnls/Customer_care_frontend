@@ -118,12 +118,6 @@ function Layout() {
           </ProtectedRoute>
         } />
         
-        <Route path="/tech/sites" element={
-          <ProtectedRoute role="technician">
-            <SitesManagementPage />
-          </ProtectedRoute>
-        } />
-        
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>

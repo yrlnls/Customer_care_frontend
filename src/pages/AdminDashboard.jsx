@@ -7,8 +7,10 @@ import CreateTicketModal from '../components/admin/CreateTicketModal.jsx';
 import ClientsTable from '../components/agent/ClientsTable.jsx';
 import ClientForm from '../components/agent/ClientForm.jsx';
 import { ticketsAPI, usersAPI, clientsAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [technicians, setTechnicians] = useState([]);
   const [clients, setClients] = useState([]);
@@ -173,6 +175,26 @@ function AdminDashboard() {
   const completedTickets = tickets.filter(ticket => ticket.timeCompleted);
   const pendingTickets = tickets.filter(ticket => !ticket.timeCompleted);
 
+  const handleNavigateToUsers = () => {
+    navigate('/admin/manage-users');
+  };
+
+  const handleNavigateToReports = () => {
+    navigate('/admin/view-reports');
+  };
+
+  const handleNavigateToSettings = () => {
+    navigate('/admin/system-settings');
+  };
+
+  const handleNavigateToMetrics = () => {
+    navigate('/admin/technician-metrics');
+  };
+
+  const handleNavigateToSites = () => {
+    navigate('/admin/sites');
+  };
+
   if (loading) {
     return (
       <div className="p-4 text-center">
@@ -198,6 +220,7 @@ function AdminDashboard() {
             <Card.Body>
               <Card.Title>Total Tickets</Card.Title>
               <Card.Text className="display-4">{tickets.length}</Card.Text>
+              <Button variant="outline-primary" size="sm">View All</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -206,6 +229,7 @@ function AdminDashboard() {
             <Card.Body>
               <Card.Title>Today's Tickets</Card.Title>
               <Card.Text className="display-4">{todaysTickets.length}</Card.Text>
+              <Button variant="outline-info" size="sm">View Today's</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -214,6 +238,7 @@ function AdminDashboard() {
             <Card.Body>
               <Card.Title>Pending Tickets</Card.Title>
               <Card.Text className="display-4">{pendingTickets.length}</Card.Text>
+              <Button variant="outline-warning" size="sm">View Pending</Button>
             </Card.Body>
           </Card>
         </Col>
@@ -222,6 +247,82 @@ function AdminDashboard() {
             <Card.Body>
               <Card.Title>Completed Today</Card.Title>
               <Card.Text className="display-4">{completedTickets.length}</Card.Text>
+              <Button variant="outline-success" size="sm">View Completed</Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Quick Actions Row */}
+      <Row className="mb-4">
+        <Col md={12}>
+          <Card>
+            <Card.Header>
+              <h5 className="mb-0">Quick Actions</h5>
+            </Card.Header>
+            <Card.Body>
+              <Row>
+                <Col md={2}>
+                  <Button 
+                    variant="primary" 
+                    className="w-100 mb-2"
+                    onClick={handleNavigateToUsers}
+                  >
+                    <i className="bi bi-people me-2"></i>
+                    Manage Users
+                  </Button>
+                </Col>
+                <Col md={2}>
+                  <Button 
+                    variant="success" 
+                    className="w-100 mb-2"
+                    onClick={handleNavigateToSites}
+                  >
+                    <i className="bi bi-geo-alt me-2"></i>
+                    Sites Management
+                  </Button>
+                </Col>
+                <Col md={2}>
+                  <Button 
+                    variant="info" 
+                    className="w-100 mb-2"
+                    onClick={handleNavigateToReports}
+                  >
+                    <i className="bi bi-file-earmark-text me-2"></i>
+                    View Reports
+                  </Button>
+                </Col>
+                <Col md={2}>
+                  <Button 
+                    variant="warning" 
+                    className="w-100 mb-2"
+                    onClick={handleNavigateToSettings}
+                  >
+                    <i className="bi bi-gear me-2"></i>
+                    System Settings
+                  </Button>
+                </Col>
+                <Col md={2}>
+                  <Button 
+                    variant="secondary" 
+                    className="w-100 mb-2"
+                    onClick={handleNavigateToMetrics}
+                  >
+                    <i className="bi bi-graph-up me-2"></i>
+                    Tech Metrics
+                  </Button>
+                </Col>
+                <Col md={2}>
+                  <Button 
+                    variant="outline-primary" 
+                    className="w-100 mb-2"
+                    onClick={() => navigate('/map')}
+                  >
+                    <i className="bi bi-map me-2"></i>
+                    View Map
+                  </Button>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         </Col>

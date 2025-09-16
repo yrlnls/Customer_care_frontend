@@ -43,6 +43,13 @@ function CustomNavbar() {
                 </Nav.Link>
                 <Nav.Link 
                   as={Link}
+                  to="/admin/sites"
+                  className="mx-2 text-white"
+                >
+                  Sites Management
+                </Nav.Link>
+                <Nav.Link 
+                  as={Link}
                   to="/admin/system-settings"
                   className="mx-2 text-white"
                 >

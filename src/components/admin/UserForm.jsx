@@ -146,7 +146,7 @@ const UserForm = ({ user, onSubmit, onClose }) => {
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" onClick={handleSubmit}>
           {user ? 'Update User' : 'Add User'}
         </Button>
       </Modal.Footer>

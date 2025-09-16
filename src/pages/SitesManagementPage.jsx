@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { mockSites, addSite, updateSite, deleteSite } from '../data/mockSites';
+import { sitesAPI } from '../services/api';
 import AddSiteModal from '../components/sites/AddSiteModal';
 
 const SitesManagementPage = () => {
@@ -12,17 +12,7 @@ const SitesManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [loading, setLoading] = useState(true);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    lat: '',
-    lng: '',
-    description: '',
-    type: 'office',
-    status: 'active',
-    address: '',
-    contact: ''
-  });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadSites();
@@ -31,62 +21,50 @@ const SitesManagementPage = () => {
   const loadSites = async () => {
     try {
       setLoading(true);
-      const data = await mockSites;
-      setSites(data);
-      setLoading(false);
+      setError(null);
+      const response = await sitesAPI.getAll();
+      setSites(response.data || []);
     } catch (error) {
       console.error('Error loading sites:', error);
+      setError('Failed to load sites');
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleAddSite = async (e) => {
-    e.preventDefault();
+  const handleAddSite = async (siteData) => {
     try {
-      const newSite = await addSite(formData);
-      setSites(prev => [...prev, newSite]);
-      resetForm();
+      const response = await sitesAPI.create(siteData);
+      setSites(prev => [...prev, response.data]);
       setShowAddForm(false);
     } catch (error) {
       console.error('Error adding site:', error);
+      setError('Failed to add site');
     }
   };
 
-  const handleUpdateSite = async (e) => {
-    e.preventDefault();
+  const handleUpdateSite = async (siteData) => {
     try {
-      const updatedSite = await updateSite(editingSite.id, formData);
+      const response = await sitesAPI.update(editingSite.id, siteData);
       setSites(prev => prev.map(site => site.id === editingSite.id ? updatedSite : site));
-      resetForm();
       setShowEditForm(false);
       setEditingSite(null);
     } catch (error) {
       console.error('Error updating site:', error);
+      setError('Failed to update site');
     }
   };
 
   const handleDeleteSite = async (siteId) => {
     if (window.confirm('Are you sure you want to delete this site?')) {
       try {
-        await deleteSite(siteId);
+        await sitesAPI.delete(siteId);
         setSites(prev => prev.filter(site => site.id !== siteId));
       } catch (error) {
         console.error('Error deleting site:', error);
+        setError('Failed to delete site');
       }
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      lat: '',
-      lng: '',
-      description: '',
-      type: 'office',
-      status: 'active',
-      address: '',
-      contact: ''
-    });
   };
 
   const openEditForm = (site) => {
@@ -95,9 +73,9 @@ const SitesManagementPage = () => {
   };
 
   const filteredSites = sites.filter(site => {
-    const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         site.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         site.address.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = site.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         site.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         site.address?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'all' || site.type === filterType;
     return matchesSearch && matchesType;
   });
@@ -121,7 +99,7 @@ const SitesManagementPage = () => {
       <div className="container-main p-5">
         <div className="alert alert-danger" role="alert">
           <h4 className="alert-heading">Access Denied</h4>
-          <p>This page is restricted to administrators and technicians only.</p>
+          <p>This page is restricted to administrators only.</p>
         </div>
       </div>
     );
@@ -135,6 +113,20 @@ const SitesManagementPage = () => {
             <span className="visually-hidden">Loading...</span>
           </div>
           <p className="mt-3">Loading sites...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container-main p-5">
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-heading">Error</h4>
+          <p>{error}</p>
+          <button className="btn btn-primary" onClick={loadSites}>
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -221,23 +213,23 @@ const SitesManagementPage = () => {
                       <td>
                         <strong>{site.name}</strong>
                         <br />
-                        <small className="text-muted">{site.description}</small>
+                        <small className="text-muted">{site.description || 'No description'}</small>
                       </td>
                       <td>
                         <span className={`badge bg-${site.type === 'datacenter' ? 'danger' : site.type === 'office' ? 'primary' : 'info'}`}>
                           {siteTypes.find(t => t.value === site.type)?.label || site.type}
                         </span>
                       </td>
-                      <td>{site.address}</td>
+                      <td>{site.address || 'No address'}</td>
                       <td>
                         <small>
-                          Lat: {site.lat}<br />
-                          Lng: {site.lng}
+                          Lat: {site.latitude || site.lat}<br />
+                          Lng: {site.longitude || site.lng}
                         </small>
                       </td>
                       <td>
-                        <span className={`badge bg-${statusColors[site.status]}`}>
-                          {site.status}
+                        <span className={`badge bg-${statusColors[site.status] || 'secondary'}`}>
+                          {site.status || 'unknown'}
                         </span>
                       </td>
                       <td>
@@ -271,7 +263,6 @@ const SitesManagementPage = () => {
         isOpen={showAddForm}
         onClose={() => {
           setShowAddForm(false);
-          resetForm();
         }}
         onSubmit={handleAddSite}
       />
@@ -281,7 +272,6 @@ const SitesManagementPage = () => {
         onClose={() => {
           setShowEditForm(false);
           setEditingSite(null);
-          resetForm();
         }}
         onSubmit={handleUpdateSite}
         initialData={editingSite}
