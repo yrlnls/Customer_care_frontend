@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+const BASE_URL = "https://capital-customer-care.onrender.com";
 const API_BASE_URL = '/api';
 
 // Create axios instance with default config
