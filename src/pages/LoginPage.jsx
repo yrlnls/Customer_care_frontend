@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Button, Card, Container, Form, Alert, Spinner } from 'react-bootstrap';
 
 function LoginPage() {
   const [credentials, setCredentials] = useState({
@@ -44,67 +43,66 @@ function LoginPage() {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: '24rem' }} className="p-4">
-        <Card.Body>
-          <Card.Title className="text-center mb-4">Customer Care System</Card.Title>
-          <Card.Subtitle className="mb-3 text-muted text-center">Please login to continue</Card.Subtitle>
-          
-          {error && <Alert variant="danger">{error}</Alert>}
-          
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                value={credentials.email}
-                onChange={handleInputChange}
-                placeholder="Enter your email"
-                required
-              />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                name="password"
-                value={credentials.password}
-                onChange={handleInputChange}
-                placeholder="Enter your password"
-                required
-              />
-            </Form.Group>
-            
-            <Button 
-              variant="primary" 
-              type="submit"
-              className="w-100"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  Logging in...
-                </>
-              ) : (
-                'Login'
-              )}
-            </Button>
-          </Form>
-          
-          <div className="mt-3">
-            <small className="text-muted">
-              Demo credentials:<br/>
-              Admin: admin@company.com / admin123<br/>
-              Agent: sarah.johnson@company.com / agent123<br/>
-              Tech: mike.wilson@company.com / tech123
-            </small>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="text-center mb-4 glow-text">Customer Care System</h2>
+        <p className="mb-3 text-secondary text-center">Please login to continue</p>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={handleInputChange}
+              placeholder="Enter your email"
+              className="form-control"
+              required
+            />
           </div>
-        </Card.Body>
-      </Card>
-    </Container>
+
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={handleInputChange}
+              placeholder="Enter your password"
+              className="form-control"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
+          </button>
+        </form>
+
+        <div className="mt-3">
+          <small className="text-secondary">
+            Demo credentials:<br/>
+            Admin: admin@company.com / admin123<br/>
+            Agent: sarah.johnson@company.com / agent123<br/>
+            Tech: mike.wilson@company.com / tech123
+          </small>
+        </div>
+      </div>
+    </div>
   );
 }
 

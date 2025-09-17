@@ -15,10 +15,31 @@ body {
   filter: drop-shadow(0 0 4px rgba(12, 13, 102, 0.8));
 }
 
+/* Additional futuristic animations */
 @keyframes pulse {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.2); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 30px #00d4ff;
+  }
+  50% {
+    text-shadow: 0 0 20px #00aacc, 0 0 30px #00aacc, 0 0 40px #00aacc;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Ensure markers stay visible on all layers */

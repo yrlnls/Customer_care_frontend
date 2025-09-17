@@ -8,6 +8,7 @@ import ClientsTable from '../components/agent/ClientsTable.jsx';
 import ClientForm from '../components/agent/ClientForm.jsx';
 import { ticketsAPI, usersAPI, clientsAPI } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import './AdminDashboard.css';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -197,7 +198,7 @@ function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="p-4 text-center">
+      <div className="loading-container">
         <Spinner animation="border" role="status" />
         <div>Loading...</div>
       </div>
@@ -205,8 +206,8 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="mb-4">Admin Dashboard</h2>
+    <div className="admin-dashboard">
+      <h2 className="dashboard-header">Admin Dashboard</h2>
 
       {alert && (
         <Alert variant={alert.variant} dismissible onClose={() => setAlert(null)}>
@@ -214,10 +215,11 @@ function AdminDashboard() {
         </Alert>
       )}
 
-      <Row className="mb-4">
+      <Row className="mb-4 stats-cards">
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-ticket-detailed display-4 text-primary mb-2"></i>
               <Card.Title>Total Tickets</Card.Title>
               <Card.Text className="display-4">{tickets.length}</Card.Text>
               <Button variant="outline-primary" size="sm">View All</Button>
@@ -227,6 +229,7 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-calendar-event display-4 text-info mb-2"></i>
               <Card.Title>Today's Tickets</Card.Title>
               <Card.Text className="display-4">{todaysTickets.length}</Card.Text>
               <Button variant="outline-info" size="sm">View Today's</Button>
@@ -236,6 +239,7 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-clock display-4 text-warning mb-2"></i>
               <Card.Title>Pending Tickets</Card.Title>
               <Card.Text className="display-4">{pendingTickets.length}</Card.Text>
               <Button variant="outline-warning" size="sm">View Pending</Button>
@@ -245,6 +249,7 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-check-circle display-4 text-success mb-2"></i>
               <Card.Title>Completed Today</Card.Title>
               <Card.Text className="display-4">{completedTickets.length}</Card.Text>
               <Button variant="outline-success" size="sm">View Completed</Button>
@@ -256,71 +261,71 @@ function AdminDashboard() {
       {/* Quick Actions Row */}
       <Row className="mb-4">
         <Col md={12}>
-          <Card>
+          <Card className="quick-actions-card">
             <Card.Header>
               <h5 className="mb-0">Quick Actions</h5>
             </Card.Header>
             <Card.Body>
-              <Row>
+              <Row className="quick-actions-grid">
                 <Col md={2}>
-                  <Button 
-                    variant="primary" 
-                    className="w-100 mb-2"
+                  <div
+                    className="quick-action-btn"
                     onClick={handleNavigateToUsers}
+                    style={{cursor: 'pointer'}}
                   >
-                    <i className="bi bi-people me-2"></i>
-                    Manage Users
-                  </Button>
+                    <i className="bi bi-people"></i>
+                    <div className="btn-text">Manage Users</div>
+                  </div>
                 </Col>
                 <Col md={2}>
-                  <Button 
-                    variant="success" 
-                    className="w-100 mb-2"
+                  <div
+                    className="quick-action-btn"
                     onClick={handleNavigateToSites}
+                    style={{cursor: 'pointer'}}
                   >
-                    <i className="bi bi-geo-alt me-2"></i>
-                    Sites Management
-                  </Button>
+                    <i className="bi bi-geo-alt"></i>
+                    <div className="btn-text">Sites Management</div>
+                  </div>
                 </Col>
                 <Col md={2}>
-                  <Button 
-                    variant="info" 
-                    className="w-100 mb-2"
+                  <div
+                    className="quick-action-btn"
                     onClick={handleNavigateToReports}
+                    style={{cursor: 'pointer'}}
                   >
-                    <i className="bi bi-file-earmark-text me-2"></i>
-                    View Reports
-                  </Button>
+                    <i className="bi bi-file-earmark-text"></i>
+                    <div className="btn-text">View Reports</div>
+                  </div>
                 </Col>
                 <Col md={2}>
-                  <Button 
-                    variant="warning" 
-                    className="w-100 mb-2"
+                  <div
+                    className="quick-action-btn"
                     onClick={handleNavigateToSettings}
+                    style={{cursor: 'pointer'}}
                   >
-                    <i className="bi bi-gear me-2"></i>
-                    System Settings
-                  </Button>
+                    <i className="bi bi-gear"></i>
+                    <div className="btn-text">System Settings</div>
+                  </div>
                 </Col>
                 <Col md={2}>
-                  <Button 
-                    variant="secondary" 
-                    className="w-100 mb-2"
+                  <div
+                    className="quick-action-btn"
                     onClick={handleNavigateToMetrics}
+                    style={{cursor: 'pointer'}}
                   >
-                    <i className="bi bi-graph-up me-2"></i>
-                    Tech Metrics
-                  </Button>
+                    <i className="bi bi-graph-up"></i>
+                    <div className="btn-text">Tech Metrics</div>
+                  </div>
                 </Col>
                 <Col md={2}>
-                  <Button 
-                    variant="outline-primary" 
-                    className="w-100 mb-2"
+                  <div
+                    className="quick-action-btn"
                     onClick={() => navigate('/map')}
+                    style={{cursor: 'pointer'}}
                   >
-                    <i className="bi bi-map me-2"></i>
-                    View Map
-                  </Button>
+                    <i className="bi bi-map"></i>
+                    <div className="btn-text">View Map</div>
+                  </div>
                 </Col>
               </Row>
             </Card.Body>
@@ -330,7 +335,7 @@ function AdminDashboard() {
 
       <Row className="mb-4">
         <Col md={12}>
-          <Card className="mb-4">
+          <Card className="management-card">
             <Card.Header className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Ticket Management</h5>
               <Button variant="primary" onClick={() => setShowCreateModal(true)}>
@@ -352,7 +357,7 @@ function AdminDashboard() {
 
       <Row className="mb-4">
         <Col md={12}>
-          <Card className="mb-4">
+          <Card className="management-card">
             <Card.Header className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Client Management</h5>
               <Button variant="success" onClick={handleAddClient}>
@@ -372,7 +377,7 @@ function AdminDashboard() {
         </Col>
       </Row>
 
-      <Row className="mb-4">
+      <Row className="mb-4 analytics-section">
         <Col md={8}>
           <TicketAnalytics />
         </Col>
