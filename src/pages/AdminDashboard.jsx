@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import { Card, Button, Row, Col, Alert, Spinner, Tabs, Tab, Form } from 'react-bootstrap';
 import TicketAnalytics from '../components/admin/TicketAnalytics';
 import ActivityLog from '../components/admin/ActivityLog';
 import TicketList from '../components/admin/TicketList.jsx';
@@ -23,8 +23,14 @@ function AdminDashboard() {
   const [editingTicket, setEditingTicket] = useState(null);
   const [editingClient, setEditingClient] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [activeTab, setActiveTab] = useState('today');
 
-  // Fetch tickets and technicians on component mount
+  // New: state for date filtering
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
+
+  // Fetch tickets, technicians, and clients
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,7 +62,6 @@ function AdminDashboard() {
   const handleCreateTicket = async (ticketData) => {
     try {
       if (editingTicket) {
-        // Update existing ticket
         await ticketsAPI.update(editingTicket.id, {
           title: ticketData.title,
           description: ticketData.description || '',
@@ -66,7 +71,6 @@ function AdminDashboard() {
         });
         showAlert('Ticket updated successfully!');
       } else {
-        // Create new ticket
         await ticketsAPI.create({
           title: ticketData.title,
           description: ticketData.description || '',
@@ -78,7 +82,6 @@ function AdminDashboard() {
         showAlert('Ticket created successfully!');
       }
 
-      // Refresh tickets list
       const response = await ticketsAPI.getAll();
       setTickets(response.data.tickets || []);
       setEditingTicket(null);
@@ -99,7 +102,6 @@ function AdminDashboard() {
         await ticketsAPI.delete(ticketId);
         showAlert('Ticket deleted successfully!', 'info');
 
-        // Refresh tickets list
         const response = await ticketsAPI.getAll();
         setTickets(response.data.tickets || []);
       } catch (error) {
@@ -114,7 +116,7 @@ function AdminDashboard() {
     setEditingTicket(null);
   };
 
-  // Client management functions
+  // Client management
   const handleAddClient = () => {
     setEditingClient(null);
     setShowClientModal(true);
@@ -131,7 +133,6 @@ function AdminDashboard() {
         await clientsAPI.delete(clientId);
         showAlert('Client deleted successfully!', 'info');
 
-        // Refresh clients list
         const response = await clientsAPI.getAll();
         setClients(response.data.clients || []);
       } catch (error) {
@@ -144,16 +145,13 @@ function AdminDashboard() {
   const handleSubmitClient = async (clientData) => {
     try {
       if (editingClient) {
-        // Update existing client
         await clientsAPI.update(editingClient.id, clientData);
         showAlert('Client updated successfully!');
       } else {
-        // Create new client
         await clientsAPI.create(clientData);
         showAlert('Client created successfully!');
       }
 
-      // Refresh clients list
       const response = await clientsAPI.getAll();
       setClients(response.data.clients || []);
       setEditingClient(null);
@@ -168,33 +166,23 @@ function AdminDashboard() {
     setEditingClient(null);
   };
 
-  // Get today's tickets
+  // Ticket filters
   const todaysTickets = tickets.filter(ticket =>
     ticket.dateAssigned === new Date().toISOString().slice(0, 10)
+  );
+
+  const dateFilteredTickets = tickets.filter(
+    (ticket) => ticket.dateAssigned === selectedDate
   );
 
   const completedTickets = tickets.filter(ticket => ticket.timeCompleted);
   const pendingTickets = tickets.filter(ticket => !ticket.timeCompleted);
 
-  const handleNavigateToUsers = () => {
-    navigate('/admin/manage-users');
-  };
-
-  const handleNavigateToReports = () => {
-    navigate('/admin/view-reports');
-  };
-
-  const handleNavigateToSettings = () => {
-    navigate('/admin/system-settings');
-  };
-
-  const handleNavigateToMetrics = () => {
-    navigate('/admin/technician-metrics');
-  };
-
-  const handleNavigateToSites = () => {
-    navigate('/admin/sites');
-  };
+  const handleNavigateToUsers = () => navigate('/admin/manage-users');
+  const handleNavigateToReports = () => navigate('/admin/view-reports');
+  const handleNavigateToSettings = () => navigate('/admin/system-settings');
+  const handleNavigateToMetrics = () => navigate('/admin/technician-metrics');
+  const handleNavigateToSites = () => navigate('/admin/sites');
 
   if (loading) {
     return (
@@ -222,7 +210,9 @@ function AdminDashboard() {
               <i className="bi bi-ticket-detailed display-4 text-primary mb-2"></i>
               <Card.Title>Total Tickets</Card.Title>
               <Card.Text className="display-4">{tickets.length}</Card.Text>
-              <Button variant="outline-primary" size="sm">View All</Button>
+              <Button variant="outline-primary" size="sm" onClick={() => setActiveTab('all')}>
+                View All
+              </Button>
             </Card.Body>
           </Card>
         </Col>
@@ -232,7 +222,9 @@ function AdminDashboard() {
               <i className="bi bi-calendar-event display-4 text-info mb-2"></i>
               <Card.Title>Today's Tickets</Card.Title>
               <Card.Text className="display-4">{todaysTickets.length}</Card.Text>
-              <Button variant="outline-info" size="sm">View Today's</Button>
+              <Button variant="outline-info" size="sm" onClick={() => setActiveTab('today')}>
+                View Today's
+              </Button>
             </Card.Body>
           </Card>
         </Col>
@@ -242,7 +234,9 @@ function AdminDashboard() {
               <i className="bi bi-clock display-4 text-warning mb-2"></i>
               <Card.Title>Pending Tickets</Card.Title>
               <Card.Text className="display-4">{pendingTickets.length}</Card.Text>
-              <Button variant="outline-warning" size="sm">View Pending</Button>
+              <Button variant="outline-warning" size="sm" onClick={() => setActiveTab('pending')}>
+                View Pending
+              </Button>
             </Card.Body>
           </Card>
         </Col>
@@ -250,89 +244,17 @@ function AdminDashboard() {
           <Card className="text-center">
             <Card.Body>
               <i className="bi bi-check-circle display-4 text-success mb-2"></i>
-              <Card.Title>Completed Today</Card.Title>
+              <Card.Title>Completed</Card.Title>
               <Card.Text className="display-4">{completedTickets.length}</Card.Text>
-              <Button variant="outline-success" size="sm">View Completed</Button>
+              <Button variant="outline-success" size="sm" onClick={() => setActiveTab('completed')}>
+                View Completed
+              </Button>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* Quick Actions Row */}
-      <Row className="mb-4">
-        <Col md={12}>
-          <Card className="quick-actions-card">
-            <Card.Header>
-              <h5 className="mb-0">Quick Actions</h5>
-            </Card.Header>
-            <Card.Body>
-              <Row className="quick-actions-grid">
-                <Col md={2}>
-                  <div
-                    className="quick-action-btn"
-                    onClick={handleNavigateToUsers}
-                    style={{cursor: 'pointer'}}
-                  >
-                    <i className="bi bi-people"></i>
-                    <div className="btn-text">Manage Users</div>
-                  </div>
-                </Col>
-                <Col md={2}>
-                  <div
-                    className="quick-action-btn"
-                    onClick={handleNavigateToSites}
-                    style={{cursor: 'pointer'}}
-                  >
-                    <i className="bi bi-geo-alt"></i>
-                    <div className="btn-text">Sites Management</div>
-                  </div>
-                </Col>
-                <Col md={2}>
-                  <div
-                    className="quick-action-btn"
-                    onClick={handleNavigateToReports}
-                    style={{cursor: 'pointer'}}
-                  >
-                    <i className="bi bi-file-earmark-text"></i>
-                    <div className="btn-text">View Reports</div>
-                  </div>
-                </Col>
-                <Col md={2}>
-                  <div
-                    className="quick-action-btn"
-                    onClick={handleNavigateToSettings}
-                    style={{cursor: 'pointer'}}
-                  >
-                    <i className="bi bi-gear"></i>
-                    <div className="btn-text">System Settings</div>
-                  </div>
-                </Col>
-                <Col md={2}>
-                  <div
-                    className="quick-action-btn"
-                    onClick={handleNavigateToMetrics}
-                    style={{cursor: 'pointer'}}
-                  >
-                    <i className="bi bi-graph-up"></i>
-                    <div className="btn-text">Tech Metrics</div>
-                  </div>
-                </Col>
-                <Col md={2}>
-                  <div
-                    className="quick-action-btn"
-                    onClick={() => navigate('/map')}
-                    style={{cursor: 'pointer'}}
-                  >
-                    <i className="bi bi-map"></i>
-                    <div className="btn-text">View Map</div>
-                  </div>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
+      {/* Tabs for Ticket Views */}
       <Row className="mb-4">
         <Col md={12}>
           <Card className="management-card">
@@ -343,18 +265,58 @@ function AdminDashboard() {
               </Button>
             </Card.Header>
             <Card.Body>
-              <TicketList
-                tickets={tickets}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                onEdit={handleEditTicket}
-                onDelete={handleDeleteTicket}
-              />
+              <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
+                <Tab eventKey="all" title="All Tickets">
+                  <TicketList
+                    tickets={tickets}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onEdit={handleEditTicket}
+                    onDelete={handleDeleteTicket}
+                  />
+                </Tab>
+                <Tab eventKey="today" title="Tickets by Date">
+                  <Form.Group className="mb-3" controlId="filterDate">
+                    <Form.Label>Select Date</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                    />
+                  </Form.Group>
+                  <TicketList
+                    tickets={dateFilteredTickets}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onEdit={handleEditTicket}
+                    onDelete={handleDeleteTicket}
+                  />
+                </Tab>
+                <Tab eventKey="pending" title="Pending Tickets">
+                  <TicketList
+                    tickets={pendingTickets}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onEdit={handleEditTicket}
+                    onDelete={handleDeleteTicket}
+                  />
+                </Tab>
+                <Tab eventKey="completed" title="Completed Tickets">
+                  <TicketList
+                    tickets={completedTickets}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onEdit={handleEditTicket}
+                    onDelete={handleDeleteTicket}
+                  />
+                </Tab>
+              </Tabs>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
+      {/* Client Management */}
       <Row className="mb-4">
         <Col md={12}>
           <Card className="management-card">
@@ -377,6 +339,7 @@ function AdminDashboard() {
         </Col>
       </Row>
 
+      {/* Analytics & Logs */}
       <Row className="mb-4 analytics-section">
         <Col md={8}>
           <TicketAnalytics />
@@ -386,6 +349,7 @@ function AdminDashboard() {
         </Col>
       </Row>
 
+      {/* Modals */}
       <CreateTicketModal
         show={showCreateModal}
         onClose={handleCloseModal}

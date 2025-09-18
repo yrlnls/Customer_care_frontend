@@ -4,8 +4,8 @@ import ReactDOM from 'react-dom';
 const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMode = false }) => {
   const [formData, setFormData] = useState({
     name: '',
-    lat: '',
-    lng: '',
+    latitude: '',
+    longitude: '',
     description: '',
     type: 'office',
     status: 'active',
@@ -25,8 +25,8 @@ const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMod
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        lat: initialData.latitude || initialData.lat || '',
-        lng: initialData.longitude || initialData.lng || '',
+        latitude: initialData.latitude || initialData.lat || '',
+        longitude: initialData.longitude || initialData.lng || '',
         description: initialData.description || '',
         type: initialData.type || 'office',
         status: initialData.status || 'active',
@@ -36,8 +36,8 @@ const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMod
     } else {
       setFormData({
         name: '',
-        lat: '',
-        lng: '',
+        latitude: '',
+        longitude: '',
         description: '',
         type: 'office',
         status: 'active',
@@ -49,7 +49,13 @@ const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMod
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Normalize data to backend format
+    const payload = {
+      ...formData,
+      latitude: parseFloat(formData.latitude),
+      longitude: parseFloat(formData.longitude)
+    };
+    onSubmit(payload);
   };
 
   const handleChange = (e) => {
@@ -64,113 +70,99 @@ const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMod
       <div className="modal-dialog modal-lg">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">
-              {isEditMode ? 'Edit Site' : 'Add New Site'}
-            </h5>
-            <button 
-              type="button" 
-              className="btn-close" 
-              onClick={onClose}
-            ></button>
+            <h5 className="modal-title">{isEditMode ? 'Edit Site' : 'Add New Site'}</h5>
+            <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
             <form onSubmit={handleSubmit}>
               <div className="row">
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label">Site Name *</label>
-                    <input 
-                      type="text" 
-                      className="form-control" 
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Site Name *</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label">Site Type *</label>
-                    <select 
-                      className="form-select"
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      required
-                    >
-                      {siteTypes.map(type => (
-                        <option key={type.value} value={type.value}>{type.label}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Site Type *</label>
+                  <select 
+                    className="form-select"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                    required
+                  >
+                    {siteTypes.map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
-              
+
               <div className="row">
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label">Latitude *</label>
-                    <input 
-                      type="number" 
-                      step="0.000001"
-                      className="form-control" 
-                      name="lat"
-                      value={formData.lat}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Latitude *</label>
+                  <input 
+                    type="number"
+                    step="0.000001"
+                    className="form-control"
+                    name="latitude"
+                    value={formData.latitude}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label">Longitude *</label>
-                    <input 
-                      type="number" 
-                      step="0.000001"
-                      className="form-control" 
-                      name="lng"
-                      value={formData.lng}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+                <div className="col-md-6 mb-3">
+                  <label className="form-label">Longitude *</label>
+                  <input 
+                    type="number"
+                    step="0.000001"
+                    className="form-control"
+                    name="longitude"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Address</label>
                 <input 
-                  type="text" 
-                  className="form-control" 
+                  type="text"
+                  className="form-control"
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
                 />
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Contact</label>
                 <input 
-                  type="text" 
-                  className="form-control" 
+                  type="text"
+                  className="form-control"
                   name="contact"
                   value={formData.contact}
                   onChange={handleChange}
                 />
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Description</label>
                 <textarea 
-                  className="form-control" 
+                  className="form-control"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   rows="3"
                 />
               </div>
-              
+
               <div className="mb-3">
                 <label className="form-label">Status</label>
                 <select 
@@ -186,19 +178,12 @@ const AddSiteModal = ({ isOpen, onClose, onSubmit, initialData = null, isEditMod
               </div>
             </form>
           </div>
+
           <div className="modal-footer">
-            <button 
-              type="button" 
-              className="btn btn-secondary" 
-              onClick={onClose}
-            >
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
               Cancel
             </button>
-            <button 
-              type="button" 
-              className="btn btn-primary"
-              onClick={handleSubmit}
-            >
+            <button type="button" className="btn btn-primary" onClick={handleSubmit}>
               {isEditMode ? 'Update Site' : 'Add Site'}
             </button>
           </div>
