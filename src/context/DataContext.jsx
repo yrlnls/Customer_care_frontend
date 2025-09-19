@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
 
 const DataContext = createContext();
 export { DataContext };
@@ -13,68 +12,90 @@ export const DataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const API_URL = "http://localhost:5000/api";
+
   const getData = async () => {
     try {
       setLoading(true);
-      setError(null);
 
-      // Use axios api instance so we get consistent baseURL and auth headers
-      const [usersRes, ticketsRes, clientsRes, routersRes, metricsRes] = await Promise.all([
-        api.get('/users'),
-        api.get('/tickets'),
-        api.get('/clients'),
-        api.get('/routers'),
-        api.get('/metrics')
-      ]);
+      const [usersRes, ticketsRes, clientsRes, routersRes, metricsRes] =
+        await Promise.all([
+          fetch(`${API_URL}/users`),
+          fetch(`${API_URL}/tickets`),
+          fetch(`${API_URL}/clients`),
+          fetch(`${API_URL}/routers`),
+          fetch(`${API_URL}/metrics`)
+        ]);
 
-      setUsers(usersRes.data || []);
-      setTickets(ticketsRes.data || []);
-      setClients(clientsRes.data || []);
-      setRouters(routersRes.data || []);
-      setMetrics(metricsRes.data || {});
+      if (!usersRes.ok || !ticketsRes.ok || !clientsRes.ok || !routersRes.ok || !metricsRes.ok) {
+        throw new Error("Failed to fetch one or more resources");
+      }
+
+      const [usersData, ticketsData, clientsData, routersData, metricsData] =
+        await Promise.all([
+          usersRes.json(),
+          ticketsRes.json(),
+          clientsRes.json(),
+          routersRes.json(),
+          metricsRes.json()
+        ]);
+
+      setUsers(usersData);
+      setTickets(ticketsData);
+      setClients(clientsData);
+      setRouters(routersData);
+      setMetrics(metricsData);
       setLoading(false);
     } catch (err) {
-      // Normalize error message
-      const message = err.response?.data?.error || err.message || 'Failed to load data';
-      console.error('DataContext.getData error:', err);
-      setError(message);
+      setError(err.message);
       setLoading(false);
     }
   };
 
-  // Example CRUD using shared api instance
+  // Example CRUD using API
   const addUser = async (userData) => {
     try {
-      const res = await api.post('/users', userData);
-      const newUser = res.data;
+      const res = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+      if (!res.ok) throw new Error("Failed to add user");
+      const newUser = await res.json();
       setUsers(prev => [...prev, newUser]);
       return { success: true };
     } catch (error) {
-      console.error('Error adding user:', error);
-      return { success: false, error: error.response?.data?.error || error.message };
+      console.error("Error adding user:", error);
+      return { success: false, error: error.message };
     }
   };
 
   const updateUser = async (userId, userData) => {
     try {
-      const res = await api.put(`/users/${userId}`, userData);
-      const updatedUser = res.data;
+      const res = await fetch(`${API_URL}/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+      if (!res.ok) throw new Error("Failed to update user");
+      const updatedUser = await res.json();
       setUsers(prev => prev.map(u => (u.id === userId ? updatedUser : u)));
       return { success: true };
     } catch (error) {
-      console.error('Error updating user:', error);
-      return { success: false, error: error.response?.data?.error || error.message };
+      console.error("Error updating user:", error);
+      return { success: false, error: error.message };
     }
   };
 
   const deleteUser = async (userId) => {
     try {
-      await api.delete(`/users/${userId}`);
+      const res = await fetch(`${API_URL}/users/${userId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete user");
       setUsers(prev => prev.filter(u => u.id !== userId));
       return { success: true };
     } catch (error) {
-      console.error('Error deleting user:', error);
-      return { success: false, error: error.response?.data?.error || error.message };
+      console.error("Error deleting user:", error);
+      return { success: false, error: error.message };
     }
   };
 
