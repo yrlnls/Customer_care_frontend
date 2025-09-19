@@ -89,7 +89,7 @@ function CreateTicketModal({ show, onClose, onCreate, technicians, ticket, clien
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formClient">
-            <Form.Label>Client</Form.Label>
+            {/* <Form.Label>Client</Form.Label>
             <Form.Select
               value={clientId}
               onChange={e => setClientId(e.target.value)}
@@ -99,7 +99,7 @@ function CreateTicketModal({ show, onClose, onCreate, technicians, ticket, clien
               {clients.map(client => (
                 <option key={client.id} value={client.id}>{client.name}</option>
               ))}
-            </Form.Select> 
+            </Form.Select> */}
           </Form.Group>
           <Form.Group className="mb-3" controlId="formDateAssigned">
             <Form.Label>Date Assigned</Form.Label>
