@@ -21,7 +21,7 @@ const MapComponent = () => {
   });
   const { userRole: role } = useAuth();
   const canAddRouter = role === 'admin' || role === 'tech';
-  
+
   const groupsRef = useRef({
     route_point: L.layerGroup(),
     closure: L.layerGroup(),
@@ -45,7 +45,7 @@ const MapComponent = () => {
       maxZoom: 19,
       attribution: '© OSM'
     });
-    
+
     const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: '© Esri'
@@ -97,10 +97,30 @@ const MapComponent = () => {
       const response = await sitesAPI.getAll();
       const apiSites = response.data;
 
-      setSites(apiSites);
+      // Handle the correct response structure: response.data.sites
+      let sitesArray = [];
+      if (apiSites && typeof apiSites === 'object') {
+        if (Array.isArray(apiSites)) {
+          sitesArray = apiSites;
+        } else if (apiSites.sites && Array.isArray(apiSites.sites)) {
+          sitesArray = apiSites.sites;
+        } else {
+          console.error('API response data is not an array and has no sites property:', apiSites);
+          console.error('Response:', response);
+          setSites([]);
+          return;
+        }
+      } else {
+        console.error('API response data is not an object:', apiSites);
+        console.error('Response:', response);
+        setSites([]);
+        return;
+      }
+
+      setSites(sitesArray);
 
       // Add site markers to map
-      apiSites.forEach(site => {
+      sitesArray.forEach(site => {
         const siteIcon = L.icon({
           iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE2IDJMMTkuNjYgMTAuOTg3TDI5LjMzIDEzTDIwLjY2IDIwLjYxM0wxNiAzMEwxMS4zNCAyMC42MTNMMi42NyAxM0wxMi4zNCAxMC45ODdMMTYgMloiIGZpbGw9IiM0M0ZGMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iNCIgZmlsbD0iI0ZGRkZGRiIvPgo8L3N2Zz4=',
           iconSize: [32, 32],
@@ -127,6 +147,13 @@ const MapComponent = () => {
       });
     } catch (error) {
       console.error('Error loading sites:', error);
+      console.error('Full error details:', {
+        message: error.message,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      setSites([]);
     }
   };
 
@@ -202,7 +229,7 @@ const MapComponent = () => {
 
   useEffect(() => {
     if (!map) return;
-    
+
     map.on('click', handleMapClick);
     return () => {
       map.off('click', handleMapClick);
@@ -322,14 +349,14 @@ const MapComponent = () => {
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
         {role && ['admin', 'tech'].includes(role) && (
           <>
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               onClick={() => setShowAddForm(true)}
             >
               Add Site
             </button>
-            <button 
-              className="btn btn-secondary" 
+            <button
+              className="btn btn-secondary"
               onClick={() => {
                 if (map) {
                   map.on('click', handleMapClick);
@@ -350,13 +377,13 @@ const MapComponent = () => {
 
       {/* Site Link Manager Component */}
       {sites.length > 0 && (
-        <SiteLinkManager 
+        <SiteLinkManager
           map={map}
           sites={sites}
           layerGroup={groupsRef.current.connections}
         />
       )}
-      
+
       {showAddForm && (
         <div className="card mb-3">
           <div className="card-header">
@@ -366,10 +393,10 @@ const MapComponent = () => {
             <form onSubmit={handleAddSite}>
               <div className="mb-3">
                 <label className="form-label">Site Name</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={newSite.name} 
+                <input
+                  type="text"
+                  className="form-control"
+                  value={newSite.name}
                   onChange={(e) => setNewSite({...newSite, name: e.target.value})}
                   required
                 />
@@ -398,9 +425,9 @@ const MapComponent = () => {
               </div>
               <div className="mb-3">
                 <label className="form-label">Description</label>
-                <textarea 
-                  className="form-control" 
-                  value={newSite.description} 
+                <textarea
+                  className="form-control"
+                  value={newSite.description}
                   onChange={(e) => setNewSite({...newSite, description: e.target.value})}
                   rows="3"
                 />
@@ -408,9 +435,9 @@ const MapComponent = () => {
               <button type="submit" className="btn btn-primary">
                 {editingSite ? 'Update Site' : 'Add Site'}
               </button>
-              <button 
-                type="button" 
-                className="btn btn-secondary ms-2" 
+              <button
+                type="button"
+                className="btn btn-secondary ms-2"
                 onClick={() => {
                   setShowAddForm(false);
                   setEditingSite(null);
@@ -423,7 +450,7 @@ const MapComponent = () => {
           </div>
         </div>
       )}
-      
+
       <div id="map" ref={mapRef} style={{ height: '70vh', width: '100%' }} />
     </div>
   );

@@ -23,10 +23,39 @@ const SitesManagementPage = () => {
       setLoading(true);
       setError(null);
       const response = await sitesAPI.getAll();
-      setSites(response.data || []);
+      const sitesData = response.data;
+
+      // Handle the correct response structure: response.data.sites
+      let sitesArray = [];
+      if (sitesData && typeof sitesData === 'object') {
+        if (Array.isArray(sitesData)) {
+          sitesArray = sitesData;
+        } else if (sitesData.sites && Array.isArray(sitesData.sites)) {
+          sitesArray = sitesData.sites;
+        } else {
+          console.error('API response data is not an array and has no sites property:', sitesData);
+          console.error('Response:', response);
+          setSites([]);
+          return;
+        }
+      } else {
+        console.error('API response data is not an object:', sitesData);
+        console.error('Response:', response);
+        setSites([]);
+        return;
+      }
+
+      setSites(sitesArray);
     } catch (error) {
       console.error('Error loading sites:', error);
+      console.error('Full error details:', {
+        message: error.message,
+        response: error.response,
+        status: error.response?.status,
+        data: error.response?.data
+      });
       setError('Failed to load sites');
+      setSites([]);
     } finally {
       setLoading(false);
     }
@@ -46,7 +75,7 @@ const SitesManagementPage = () => {
   const handleUpdateSite = async (siteData) => {
     try {
       const response = await sitesAPI.update(editingSite.id, siteData);
-      setSites(prev => prev.map(site => site.id === editingSite.id ? updatedSite : site));
+      setSites(prev => prev.map(site => site.id === editingSite.id ? response.data : site));
       setShowEditForm(false);
       setEditingSite(null);
     } catch (error) {
@@ -72,13 +101,14 @@ const SitesManagementPage = () => {
     setShowEditForm(true);
   };
 
-  const filteredSites = sites.filter(site => {
+  // Add safety check for sites array before filtering
+  const filteredSites = Array.isArray(sites) ? sites.filter(site => {
     const matchesSearch = site.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          site.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          site.address?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === 'all' || site.type === filterType;
     return matchesSearch && matchesType;
-  });
+  }) : [];
 
   const siteTypes = [
     { value: 'office', label: 'Office' },
@@ -136,8 +166,8 @@ const SitesManagementPage = () => {
     <div className="container-main p-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Sites Management</h1>
-        <button 
-          className="btn btn-primary" 
+        <button
+          className="btn btn-primary"
           onClick={() => setShowAddForm(true)}
         >
           <i className="bi bi-plus-circle me-2"></i>
@@ -164,7 +194,7 @@ const SitesManagementPage = () => {
               </div>
             </div>
             <div className="col-md-4">
-              <select 
+              <select
                 className="form-select"
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
@@ -234,14 +264,14 @@ const SitesManagementPage = () => {
                       </td>
                       <td>
                         <div className="d-flex gap-2">
-                          <button 
+                          <button
                             className="btn btn-sm btn-outline-primary"
                             onClick={() => openEditForm(site)}
                             title="Edit"
                           >
                             <i className="bi bi-pencil"></i>
                           </button>
-                          <button 
+                          <button
                             className="btn btn-sm btn-outline-danger"
                             onClick={() => handleDeleteSite(site.id)}
                             title="Delete"
@@ -266,7 +296,7 @@ const SitesManagementPage = () => {
         }}
         onSubmit={handleAddSite}
       />
-      
+
       <AddSiteModal
         isOpen={showEditForm}
         onClose={() => {
