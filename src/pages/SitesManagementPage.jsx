@@ -113,15 +113,19 @@ const SitesManagementPage = () => {
   }
 
   return (
-    <div className="container-main p-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Sites Management</h1>
+    <div className="container-fluid px-3 px-lg-5 py-3 py-lg-5">
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 className="h3 mb-0">
+          <i className="bi bi-geo-alt me-2"></i>
+          Sites Management
+        </h1>
         <button
           className="btn btn-primary"
           onClick={() => setShowAddForm(true)}
         >
           <i className="bi bi-plus-circle me-2"></i>
-          Add New Site
+          <span className="d-none d-sm-inline">Add New Site</span>
+          <span className="d-inline d-sm-none">Add Site</span>
         </button>
       </div>
 
@@ -177,85 +181,169 @@ const SitesManagementPage = () => {
               </p>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Address</th>
-                    <th>Coordinates</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSites.map((site) => (
-                    <tr key={site.id}>
-                      <td>
-                        <strong>{site.name}</strong>
-                        <br />
-                        <small className="text-muted">
-                          {site.description || 'No description'}
-                        </small>
-                      </td>
-                      <td>
-                        <span
-                          className={`badge bg-${
-                            site.type === 'datacenter'
-                              ? 'danger'
-                              : site.type === 'office'
-                              ? 'primary'
-                              : 'info'
-                          }`}
-                        >
-                          {siteTypes.find((t) => t.value === site.type)?.label ||
-                            site.type}
-                        </span>
-                      </td>
-                      <td>{site.address || 'No address'}</td>
-                      <td>
-                        <small>
-                          Lat: {site.latitude || site.lat}
-                          <br />
-                          Lng: {site.longitude || site.lng}
-                        </small>
-                      </td>
-                      <td>
-                        <span
-                          className={`badge bg-${
-                            statusColors[site.status] || 'secondary'
-                          }`}
-                        >
-                          {site.status || 'unknown'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="d-flex gap-2">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => {
-                              setEditingSite(site);
-                              setShowEditForm(true);
-                            }}
-                            title="Edit"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteSite(site.id)}
-                            title="Delete"
-                          >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </div>
-                      </td>
+            <>
+              {/* Desktop Table */}
+              <div className="table-responsive d-none d-lg-block">
+                <table className="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Address</th>
+                      <th>Coordinates</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSites.map((site) => (
+                      <tr key={site.id}>
+                        <td>
+                          <strong>{site.name}</strong>
+                          <br />
+                          <small className="text-muted">
+                            {site.description || 'No description'}
+                          </small>
+                        </td>
+                        <td>
+                          <span
+                            className={`badge bg-${
+                              site.type === 'datacenter'
+                                ? 'danger'
+                                : site.type === 'office'
+                                ? 'primary'
+                                : 'info'
+                            }`}
+                          >
+                            {siteTypes.find((t) => t.value === site.type)?.label ||
+                              site.type}
+                          </span>
+                        </td>
+                        <td>{site.address || 'No address'}</td>
+                        <td>
+                          <small>
+                            Lat: {site.latitude || site.lat}
+                            <br />
+                            Lng: {site.longitude || site.lng}
+                          </small>
+                        </td>
+                        <td>
+                          <span
+                            className={`badge bg-${
+                              statusColors[site.status] || 'secondary'
+                            }`}
+                          >
+                            {site.status || 'unknown'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => {
+                                setEditingSite(site);
+                                setShowEditForm(true);
+                              }}
+                              title="Edit"
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleDeleteSite(site.id)}
+                              title="Delete"
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card Layout */}
+              <div className="d-lg-none">
+                <div className="row">
+                  {filteredSites.map((site) => (
+                    <div key={site.id} className="col-12 mb-3">
+                      <div className="card border-0 shadow-sm">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <h6 className="card-title mb-0 fw-bold">
+                              {site.name}
+                            </h6>
+                            <div className="d-flex gap-2">
+                              <span
+                                className={`badge bg-${
+                                  statusColors[site.status] || 'secondary'
+                                }`}
+                              >
+                                {site.status || 'unknown'}
+                              </span>
+                              <span
+                                className={`badge bg-${
+                                  site.type === 'datacenter'
+                                    ? 'danger'
+                                    : site.type === 'office'
+                                    ? 'primary'
+                                    : 'info'
+                                }`}
+                              >
+                                {siteTypes.find((t) => t.value === site.type)?.label ||
+                                  site.type}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {site.description && (
+                            <p className="text-muted mb-2 small">
+                              {site.description}
+                            </p>
+                          )}
+                          
+                          {site.address && (
+                            <div className="mb-2">
+                              <small className="text-muted">Address:</small>
+                              <span className="ms-2">{site.address}</span>
+                            </div>
+                          )}
+                          
+                          <div className="mb-2">
+                            <small className="text-muted">Coordinates:</small>
+                            <small className="ms-2">
+                              Lat: {site.latitude || site.lat}, 
+                              Lng: {site.longitude || site.lng}
+                            </small>
+                          </div>
+                          
+                          <div className="d-flex gap-2 mt-3">
+                            <button
+                              className="btn btn-sm btn-outline-primary flex-fill"
+                              onClick={() => {
+                                setEditingSite(site);
+                                setShowEditForm(true);
+                              }}
+                            >
+                              <i className="bi bi-pencil me-1"></i>
+                              Edit
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-danger flex-fill"
+                              onClick={() => handleDeleteSite(site.id)}
+                            >
+                              <i className="bi bi-trash me-1"></i>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>

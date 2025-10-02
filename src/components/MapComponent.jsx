@@ -75,8 +75,39 @@ const MapComponent = () => {
   }, [sites, map]);
 
   return (
-    <div>
-      <div id="map" ref={mapRef} style={{ height: '70vh', width: '100%' }} />
+    <div className="map-container">
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h4 className="mb-0">
+          <i className="bi bi-geo-alt me-2"></i>
+          Network Map
+        </h4>
+        <div className="d-flex gap-2 flex-wrap">
+          <span className="badge bg-primary">
+            <i className="bi bi-geo-alt me-1"></i>
+            {Array.isArray(sites) ? sites.length : 0} Sites
+          </span>
+          {role && ['admin', 'tech'].includes(role) && (
+            <span className="badge bg-info">
+              <i className="bi bi-cursor me-1"></i>
+              Click to Add Site
+            </span>
+          )}
+        </div>
+      </div>
+      
+      <div 
+        id="map" 
+        ref={mapRef} 
+        style={{ 
+          height: 'calc(100vh - 200px)',
+          minHeight: '400px',
+          width: '100%',
+          borderRadius: '8px',
+          border: '1px solid #dee2e6'
+        }} 
+        className="shadow-sm"
+      />
+      
       {Array.isArray(sites) && sites.length > 0 && (
         <SiteLinkManager
           map={map}
@@ -84,6 +115,44 @@ const MapComponent = () => {
           layerGroup={groupsRef.current.connections}
         />
       )}
+      
+      <style jsx>{`
+        @media (max-width: 768px) {
+          #map {
+            height: calc(100vh - 180px) !important;
+            min-height: 350px !important;
+          }
+        }
+        
+        @media (max-width: 576px) {
+          #map {
+            height: calc(100vh - 160px) !important;
+            min-height: 300px !important;
+          }
+        }
+        
+        /* Ensure leaflet controls are touch-friendly */
+        .leaflet-control-zoom a {
+          width: 44px !important;
+          height: 44px !important;
+          line-height: 44px !important;
+          font-size: 18px !important;
+        }
+        
+        .leaflet-control-layers {
+          font-size: 14px !important;
+        }
+        
+        /* Better mobile popup styling */
+        .leaflet-popup-content {
+          margin: 10px 15px !important;
+          font-size: 14px !important;
+        }
+        
+        .leaflet-popup-content-wrapper {
+          border-radius: 8px !important;
+        }
+      `}</style>
     </div>
   );
 };

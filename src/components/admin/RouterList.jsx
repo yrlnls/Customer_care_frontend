@@ -170,65 +170,131 @@ function RouterList() {
           </Col>
         </Row>
 
-        {/* Router Table */}
-        <Table striped bordered hover responsive>
-          <thead className="table-dark">
-            <tr>
-              <th>Router Model</th>
-              <th>Serial Number</th>
-              <th>Assigned Client</th>
-              <th>Status</th>
-              <th>Location</th>
-              <th>Last Seen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRouters.map(router => (
-              <tr key={router.id}>
-                <td>
-                  <strong>{router.model || 'N/A'}</strong>
-                </td>
-                <td>
-                  <code>{router.serial_number || 'N/A'}</code>
-                </td>
-                <td>
-                  <div className="d-flex align-items-center">
-                    <i className="bi bi-person-circle me-2 text-primary"></i>
-                    {clientMap[router.client_id] || 'Unassigned'}
-                  </div>
-                </td>
-                <td>
-                  {getStatusBadge(router.status)}
-                </td>
-                <td>
-                  <div className="d-flex align-items-center">
-                    <i className="bi bi-geo-alt me-2 text-muted"></i>
-                    {router.location || 'Not specified'}
-                  </div>
-                </td>
-                <td>
-                  {router.last_seen ? (
-                    <small className="text-muted">
-                      {new Date(router.last_seen).toLocaleString()}
-                    </small>
-                  ) : (
-                    <small className="text-muted">Never</small>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {filteredRouters.length === 0 && (
+        {/* Desktop Table */}
+        <div className="d-none d-lg-block">
+          <Table striped bordered hover responsive>
+            <thead className="table-dark">
               <tr>
-                <td colSpan="6" className="text-center text-muted py-4">
-                  {searchTerm ? 
-                    'No routers found matching your search criteria' : 
-                    'No routers available'
-                  }
-                </td>
+                <th>Router Model</th>
+                <th>Serial Number</th>
+                <th>Assigned Client</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Last Seen</th>
               </tr>
-            )}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {filteredRouters.map(router => (
+                <tr key={router.id}>
+                  <td>
+                    <strong>{router.model || 'N/A'}</strong>
+                  </td>
+                  <td>
+                    <code>{router.serial_number || 'N/A'}</code>
+                  </td>
+                  <td>
+                    <div className="d-flex align-items-center">
+                      <i className="bi bi-person-circle me-2 text-primary"></i>
+                      {clientMap[router.client_id] || 'Unassigned'}
+                    </div>
+                  </td>
+                  <td>
+                    {getStatusBadge(router.status)}
+                  </td>
+                  <td>
+                    <div className="d-flex align-items-center">
+                      <i className="bi bi-geo-alt me-2 text-muted"></i>
+                      {router.location || 'Not specified'}
+                    </div>
+                  </td>
+                  <td>
+                    {router.last_seen ? (
+                      <small className="text-muted">
+                        {new Date(router.last_seen).toLocaleString()}
+                      </small>
+                    ) : (
+                      <small className="text-muted">Never</small>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {filteredRouters.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="text-center text-muted py-4">
+                    {searchTerm ? 
+                      'No routers found matching your search criteria' : 
+                      'No routers available'
+                    }
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </div>
+
+        {/* Mobile Card Layout */}
+        <div className="d-lg-none">
+          {filteredRouters.length === 0 ? (
+            <div className="text-center py-5">
+              <i className="bi bi-router fs-1 text-muted"></i>
+              <p className="text-muted mt-3">
+                {searchTerm ? 
+                  'No routers found matching your search criteria' : 
+                  'No routers available'
+                }
+              </p>
+            </div>
+          ) : (
+            <div className="row">
+              {filteredRouters.map(router => (
+                <div key={router.id} className="col-12 mb-3">
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h6 className="card-title mb-0 fw-bold">
+                          {router.model || 'N/A'}
+                        </h6>
+                        {getStatusBadge(router.status)}
+                      </div>
+                      
+                      <div className="mb-2">
+                        <small className="text-muted">Serial:</small>
+                        <code className="ms-2">{router.serial_number || 'N/A'}</code>
+                      </div>
+                      
+                      <div className="mb-2">
+                        <small className="text-muted">Client:</small>
+                        <span className="ms-2">
+                          <i className="bi bi-person-circle me-1 text-primary"></i>
+                          {clientMap[router.client_id] || 'Unassigned'}
+                        </span>
+                      </div>
+                      
+                      {router.location && (
+                        <div className="mb-2">
+                          <small className="text-muted">Location:</small>
+                          <span className="ms-2">
+                            <i className="bi bi-geo-alt me-1 text-muted"></i>
+                            {router.location}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {router.last_seen && (
+                        <div>
+                          <small className="text-muted">Last Seen:</small>
+                          <small className="ms-2 text-muted">
+                            {new Date(router.last_seen).toLocaleString()}
+                          </small>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Summary Stats */}
         {routers.length > 0 && (
