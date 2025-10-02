@@ -196,6 +196,10 @@ function AdminDashboard() {
     navigate('/admin/sites');
   };
 
+  const handleNavigateToRouters = () => {
+    navigate('/admin/routers');
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -290,6 +294,16 @@ function AdminDashboard() {
                 <Col md={2}>
                   <div
                     className="quick-action-btn"
+                    onClick={handleNavigateToRouters}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-router"></i>
+                    <div className="btn-text">Router Management</div>
+                  </div>
+                </Col>
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
                     onClick={handleNavigateToReports}
                     style={{cursor: 'pointer'}}
                   >
@@ -317,6 +331,8 @@ function AdminDashboard() {
                     <div className="btn-text">Tech Metrics</div>
                   </div>
                 </Col>
+              </Row>
+              <Row className="quick-actions-grid mt-2">
                 <Col md={2}>
                   <div
                     className="quick-action-btn"

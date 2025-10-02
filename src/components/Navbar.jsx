@@ -50,6 +50,13 @@ function CustomNavbar() {
                 </Nav.Link>
                 <Nav.Link 
                   as={Link}
+                  to="/admin/routers"
+                  className="mx-2 text-white"
+                >
+                  Router Management
+                </Nav.Link>
+                <Nav.Link 
+                  as={Link}
                   to="/admin/system-settings"
                   className="mx-2 text-white"
                 >

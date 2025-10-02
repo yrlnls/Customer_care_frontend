@@ -10,9 +10,14 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include auth token (but NOT for login requests)
 api.interceptors.request.use(
   (config) => {
+    // Don't add auth token for login requests
+    if (config.url.includes('/auth/login')) {
+      return config;
+    }
+
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -27,9 +32,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only redirect if not already on login page and not a login request
+      if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/login')) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
