@@ -34,19 +34,21 @@ const MapComponent = () => {
     const leafletMap = L.map(mapRef.current).setView([-1.312, 36.822], 16);
     setMap(leafletMap);
 
-    const osm = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { maxZoom: 19, attribution: '© OSM' }
-    );
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OSM'
+    });
+
+    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: '© Esri'
+    });
+
+    const baseLayers = { "OpenStreetMap": osm, "Satellite": esri };
     osm.addTo(leafletMap);
 
-    const esri = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { maxZoom: 19, attribution: '© Esri' }
-    );
-
     L.control
-      .layers({ OpenStreetMap: osm, Satellite: esri }, groupsRef.current)
+      .layers(baseLayers, groupsRef.current)
       .addTo(leafletMap);
 
     Object.values(groupsRef.current).forEach((g) => g.addTo(leafletMap));
