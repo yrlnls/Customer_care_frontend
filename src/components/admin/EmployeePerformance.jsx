@@ -60,7 +60,6 @@ function EmployeePerformance() {
     const data = selectedPeriod === 'month' 
       ? generateMonthlyTechData()
       : [
-          // Original weekly data
           {
             id: 1,
             name: 'Sarah Johnson',
@@ -174,7 +173,6 @@ function EmployeePerformance() {
     ],
   };
 
-  // Chart data for efficiency trends
   const efficiencyChartData = {
     labels: performanceData.map(emp => emp.name.split(' ')[0]),
     datasets: [
