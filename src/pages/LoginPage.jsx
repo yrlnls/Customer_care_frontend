@@ -107,15 +107,6 @@ function LoginPage() {
             )}
           </button>
         </form>
-
-        <div className="mt-3">
-          <small className="text-secondary">
-            Demo credentials:<br/>
-            Admin: admin@company.com / admin123<br/>
-            Agent: sarah.johnson@company.com / agent123<br/>
-            Tech: mike.wilson@company.com / tech123
-          </small>
-        </div>
       </div>
     </div>
   );
