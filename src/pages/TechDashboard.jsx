@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Spinner, Alert, Card, Row, Col, Button } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
-import TechnicianTickets from '../components/tech/TechnicianTickets';
+import TicketList from '../components/admin/TicketList.jsx';
 import LeaveManagement from '../components/tech/LeaveManagement';
-import { Alert, Spinner } from 'react-bootstrap';
 import { ticketsAPI, clientsAPI } from '../services/api';
 
-function TechDashboardContent() {
+function TechDashboard() {
   const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,49 +19,46 @@ function TechDashboardContent() {
         setLoading(true);
         const [ticketsResponse, clientsResponse] = await Promise.all([
           ticketsAPI.getAll(),
-          clientsAPI.getAll()
+          clientsAPI.getAll(),
         ]);
+
         setTickets(ticketsResponse.data.tickets || []);
         setClients(clientsResponse.data.clients || []);
       } catch (err) {
-        setError(err.message);
-        console.error('Error fetching data:', err);
+        console.error('Error fetching tickets:', err);
+        setError('Failed to load tickets');
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
-  const currentTechId = user?.id;
-
-  const assignedTickets = tickets.filter(ticket => ticket.assigned_tech_id === currentTechId);
-
-  const enhancedTickets = assignedTickets.map(ticket => ({
-    ...ticket,
-    clientName: clients.find(client => client.id === ticket.client_id)?.name || 'Unknown Client'
-  }));
+  const refreshTickets = async () => {
+    try {
+      const response = await ticketsAPI.getAll();
+      setTickets(response.data.tickets || []);
+    } catch (err) {
+      console.error('Error refreshing tickets:', err);
+      setError('Failed to refresh tickets');
+    }
+  };
 
   const handleUpdateTicket = async (ticketId, ticketData) => {
     try {
       await ticketsAPI.update(ticketId, ticketData);
-      const response = await ticketsAPI.getAll();
-      setTickets(response.data.tickets || []);
+      refreshTickets();
     } catch (error) {
       console.error('Error updating ticket:', error);
       setError('Failed to update ticket');
     }
   };
 
-  const refreshTickets = async () => {
-    try {
-      const response = await ticketsAPI.getAll();
-      setTickets(response.data.tickets || []);
-    } catch (error) {
-      console.error('Error refreshing tickets:', error);
-      setError('Failed to refresh tickets');
-    }
-  };
+  const enhancedTickets = tickets.map(ticket => ({
+    ...ticket,
+    clientName: clients.find(client => client.id === ticket.client_id)?.name || 'Unknown Client',
+  }));
 
   if (loading) {
     return (
@@ -83,31 +81,43 @@ function TechDashboardContent() {
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Technician Dashboard</h1>
-        <div>
-          <span className="text-muted">Welcome, {user?.name || 'Technician'}</span>
-        </div>
+        <h2>Technician Dashboard</h2>
+        <span className="text-muted">Welcome, {user?.name || 'Technician'}</span>
       </div>
-      
-      <div className="row">
-        <div className="col-lg-8">
-          <TechnicianTickets
-            tickets={enhancedTickets}
-            updateTicket={handleUpdateTicket}
-            refreshTickets={refreshTickets}
-          />
-        </div>
-        <div className="col-lg-4">
-          <LeaveManagement />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function TechDashboard() {
-  return (
-    <TechDashboardContent />
+      <Row className="mb-4">
+        <Col md={8}>
+          <Card className="management-card">
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <h5 className="mb-0">All Tickets</h5>
+              <Button variant="outline-primary" size="sm" onClick={refreshTickets}>
+                Refresh
+              </Button>
+            </Card.Header>
+            <Card.Body>
+              <TicketList
+                tickets={enhancedTickets}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                onEdit={handleUpdateTicket}
+                onDelete={null} // Technicians can’t delete tickets
+              />
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={4}>
+          <Card>
+            <Card.Header>
+              <h5 className="mb-0">Leave Management</h5>
+            </Card.Header>
+            <Card.Body>
+              <LeaveManagement />
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 }
 
