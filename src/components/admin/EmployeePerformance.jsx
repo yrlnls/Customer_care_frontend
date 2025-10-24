@@ -115,17 +115,17 @@ function EmployeePerformance() {
             efficiency: 92,
             totalHours: 40
           },
-          {
-            id: 6,
-            name: 'Robert Davis',
-            role: 'Agent',
-            ticketsCreated: 22,
-            ticketsResolved: 20,
-            avgResponseTime: '2.8h',
-            clientSatisfaction: 4.5,
-            efficiency: 82,
-            totalHours: 39
-          }
+          // {
+          //   id: 6,
+          //   name: 'Robert Davis',
+          //   role: 'Agent',
+          //   ticketsCreated: 22,
+          //   ticketsResolved: 20,
+          //   avgResponseTime: '2.8h',
+          //   clientSatisfaction: 4.5,
+          //   efficiency: 82,
+          //   totalHours: 39
+          // }
         ];
 
     setPerformanceData(data);
