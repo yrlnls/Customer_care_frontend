@@ -1,16 +1,22 @@
-import React from 'react';
-import { Table, FormControl, Badge, Button } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { Table, FormControl, Badge, Button, Form } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaSearch, FaFilter } from 'react-icons/fa';
 
 function TicketList({ tickets, searchTerm, onSearchChange, onEdit, onDelete }) {
+  const [dateFilter, setDateFilter] = useState('');
+
   const filteredTickets = tickets.filter(ticket => {
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = (
       ticket.title.toLowerCase().includes(searchLower) ||
       (ticket.created_by_name || '').toLowerCase().includes(searchLower) ||
       (ticket.assigned_tech_name || '').toLowerCase().includes(searchLower) ||
       (ticket.created_at || '').toLowerCase().includes(searchLower)
     );
+
+    const matchesDate = !dateFilter || (ticket.created_at && new Date(ticket.created_at).toISOString().slice(0, 10) === dateFilter);
+
+    return matchesSearch && matchesDate;
   });
 
   const getStatusBadge = (status, completedAt) => {
@@ -25,7 +31,7 @@ function TicketList({ tickets, searchTerm, onSearchChange, onEdit, onDelete }) {
 
   return (
     <>
-      <div className="d-flex align-items-center mb-3">
+      <div className="d-flex align-items-center mb-3 gap-3">
         <div className="position-relative flex-grow-1">
           <FaSearch className="position-absolute" style={{ left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d' }} />
           <FormControl
@@ -35,6 +41,26 @@ function TicketList({ tickets, searchTerm, onSearchChange, onEdit, onDelete }) {
             value={searchTerm}
             onChange={e => onSearchChange(e.target.value)}
           />
+        </div>
+        <div className="d-flex align-items-center">
+          <FaFilter className="me-2" />
+          <Form.Control
+            type="date"
+            value={dateFilter}
+            onChange={e => setDateFilter(e.target.value)}
+            placeholder="Filter by creation date"
+            style={{ width: '200px' }}
+          />
+          {dateFilter && (
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              className="ms-2"
+              onClick={() => setDateFilter('')}
+            >
+              Clear
+            </Button>
+          )}
         </div>
       </div>
       <Table striped bordered hover responsive>

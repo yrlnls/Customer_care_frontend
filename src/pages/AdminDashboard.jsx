@@ -170,7 +170,7 @@ function AdminDashboard() {
 
   // Get today's tickets
   const todaysTickets = tickets.filter(ticket =>
-    ticket.dateAssigned === new Date().toISOString().slice(0, 10)
+    ticket.created_at && new Date(ticket.created_at).toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10)
   );
 
   const completedTickets = tickets.filter(ticket => ticket.timeCompleted);

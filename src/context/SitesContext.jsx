@@ -28,7 +28,16 @@ export const SitesProvider = ({ children }) => {
 
   const addSite = async (siteData) => {
     try {
-      const response = await sitesAPI.create(siteData);
+      // Transform lat/lng to latitude/longitude for backend compatibility
+      const transformedData = {
+        ...siteData,
+        latitude: siteData.lat || siteData.latitude,
+        longitude: siteData.lng || siteData.longitude,
+      };
+      delete transformedData.lat;
+      delete transformedData.lng;
+
+      const response = await sitesAPI.create(transformedData);
       setSites((prev) => [...prev, response.data]);
     } catch (err) {
       console.error('Error adding site:', err);

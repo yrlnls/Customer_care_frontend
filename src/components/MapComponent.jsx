@@ -1,78 +1,110 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-routing-machine';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import React, { useState, useCallback } from 'react';
+import { GoogleMap, Marker, InfoWindow, Polyline, useLoadScript } from '@react-google-maps/api';
 import { useAuth } from '../context/AuthContext';
 import { useSites } from '../context/SitesContext';
-import SiteLinkManager from './map/SiteLinkManager';
+import AddSiteModal from './sites/AddSiteModal';
 
 const MapComponent = () => {
-  const mapRef = useRef(null);
-  const [map, setMap] = useState(null);
-  const { sites, loadSites, deleteSite, updateSite } = useSites();
+  const { sites, loadSites, addSite } = useSites();
   const { userRole: role } = useAuth();
-  const canAddRouter = role === 'admin' || role === 'tech';
+  const canAddSite = role === 'admin' || role === 'tech';
 
-  const groupsRef = useRef({
-    route_point: L.layerGroup(),
-    closure: L.layerGroup(),
-    building: L.layerGroup(),
-    client: L.layerGroup(),
-    fat: L.layerGroup(),
-    switch: L.layerGroup(),
-    adapter: L.layerGroup(),
-    site: L.layerGroup(),
-    router: L.layerGroup(),
-    connections: L.layerGroup(),
+  const [selectedSite, setSelectedSite] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [clickedLatLng, setClickedLatLng] = useState(null);
+  const [visibleLayers, setVisibleLayers] = useState({
+    office: true,
+    branch: true,
+    datacenter: true,
+    warehouse: true,
+    remote: true,
   });
 
-  // Init map
-  useEffect(() => {
-    if (!mapRef.current) return;
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
 
-    const leafletMap = L.map(mapRef.current).setView([-1.312, 36.822], 16);
-    setMap(leafletMap);
+  const center = { lat: -1.312, lng: 36.822 };
 
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OSM'
-    });
+  const mapContainerStyle = {
+    height: 'calc(100vh - 200px)',
+    minHeight: '400px',
+    width: '100%',
+    borderRadius: '8px',
+    border: '1px solid #dee2e6'
+  };
 
-    const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: '© Esri'
-    });
+  const options = {
+    zoom: 16,
+    center: center,
+    mapTypeId: 'satellite',
+    mapTypeControl: true,
+  };
 
-    const baseLayers = { "OpenStreetMap": osm, "Satellite": esri };
-    osm.addTo(leafletMap);
+  const siteTypeColors = {
+    office: '#007bff', // blue
+    branch: '#28a745', // green
+    datacenter: '#6f42c1', // purple
+    warehouse: '#fd7e14', // orange
+    remote: '#6c757d', // gray
+  };
 
-    L.control
-      .layers(baseLayers, groupsRef.current)
-      .addTo(leafletMap);
+  const getMarkerIcon = (color) => ({
+    path: 'M 0,-1 0,-7 8,0 z', // Simple pin shape
+    scale: 6,
+    fillColor: color,
+    fillOpacity: 1,
+    strokeColor: 'white',
+    strokeWeight: 2,
+  });
 
-    Object.values(groupsRef.current).forEach((g) => g.addTo(leafletMap));
+  const handleLayerToggle = (type) => {
+    setVisibleLayers(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
+  };
 
-    loadSites();
+  const onMapClick = useCallback((event) => {
+    if (canAddSite) {
+      setClickedLatLng({
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      });
+      setAddModalOpen(true);
+    }
+  }, [canAddSite]);
 
-    return () => leafletMap.remove();
-  }, []);
+  const handleAddSite = async (siteData) => {
+    try {
+      await addSite(siteData);
+      setAddModalOpen(false);
+      setClickedLatLng(null);
+    } catch (err) {
+      console.error('Error adding site:', err);
+    }
+  };
 
-  // Render site markers
-  useEffect(() => {
-    if (!map) return;
-    groupsRef.current.site.clearLayers();
+  if (loadError) {
+    return <div>Error loading maps</div>;
+  }
 
-    // Ensure sites is always an array before iterating
-    const sitesArray = Array.isArray(sites) ? sites : [];
+  if (!isLoaded) {
+    return <div>Loading Maps...</div>;
+  }
 
-    sitesArray.forEach((site) => {
-      if (!site.latitude || !site.longitude) return;
-      const marker = L.marker([site.latitude, site.longitude]);
-      marker.bindPopup(`<b>${site.name}</b><br/>${site.description || ''}`);
-      groupsRef.current.site.addLayer(marker);
-    });
-  }, [sites, map]);
+  // Ensure sites is always an array before iterating
+  const sitesArray = Array.isArray(sites) ? sites : [];
+
+  // Filter visible sites
+  const visibleSitesArray = sitesArray.filter(site => visibleLayers[site.type || 'office']);
+
+  // Polyline path for visible sites
+  const polylinePath = visibleSitesArray.length > 1 ? visibleSitesArray
+    .map(site => ({
+      lat: parseFloat(site.latitude || site.lat),
+      lng: parseFloat(site.longitude || site.lng)
+    })) : [];
 
   return (
     <div className="map-container">
@@ -84,9 +116,9 @@ const MapComponent = () => {
         <div className="d-flex gap-2 flex-wrap">
           <span className="badge bg-primary">
             <i className="bi bi-geo-alt me-1"></i>
-            {Array.isArray(sites) ? sites.length : 0} Sites
+            {visibleSitesArray.length} Sites
           </span>
-          {role && ['admin', 'tech'].includes(role) && (
+          {canAddSite && (
             <span className="badge bg-info">
               <i className="bi bi-cursor me-1"></i>
               Click to Add Site
@@ -94,63 +126,124 @@ const MapComponent = () => {
           )}
         </div>
       </div>
-      
-      <div 
-        id="map" 
-        ref={mapRef} 
-        style={{ 
-          height: 'calc(100vh - 200px)',
-          minHeight: '400px',
-          width: '100%',
-          borderRadius: '8px',
-          border: '1px solid #dee2e6'
-        }} 
-        className="shadow-sm"
-      />
-      
-      {Array.isArray(sites) && sites.length > 0 && (
-        <SiteLinkManager
-          map={map}
-          sites={sites}
-          layerGroup={groupsRef.current.connections}
-        />
-      )}
-      
-      <style jsx>{`
+
+      <div className="row">
+        <div className="col-md-3">
+          <div className="card h-100">
+            <div className="card-header">
+              <h6 className="mb-0">Toggle Layers</h6>
+            </div>
+            <div className="card-body p-2">
+              {Object.keys(visibleLayers).map(type => (
+                <div key={type} className="form-check mb-2">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`layer-${type}`}
+                    checked={visibleLayers[type]}
+                    onChange={() => handleLayerToggle(type)}
+                  />
+                  <label className="form-check-label" htmlFor={`layer-${type}`}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="col-md-9">
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            zoom={16}
+            center={center}
+            options={options}
+            onClick={onMapClick}
+            className="shadow-sm"
+          >
+            {visibleSitesArray.map((site) => {
+              if ((!site.latitude && !site.lat) || (!site.longitude && !site.lng)) return null;
+              const siteColor = siteTypeColors[site.type || 'office'];
+              return (
+                <Marker
+                  key={site.id}
+                  position={{ lat: parseFloat(site.latitude || site.lat), lng: parseFloat(site.longitude || site.lng) }}
+                  icon={getMarkerIcon(siteColor)}
+                  onClick={() => setSelectedSite(site)}
+                />
+              );
+            })}
+
+            {selectedSite && (
+              <InfoWindow
+                position={{ lat: parseFloat(selectedSite.latitude || selectedSite.lat), lng: parseFloat(selectedSite.longitude || selectedSite.lng) }}
+                onCloseClick={() => setSelectedSite(null)}
+              >
+                <div>
+                  <h5>{selectedSite.name}</h5>
+                  <p>{selectedSite.description || 'No description'}</p>
+                  <small>Type: {selectedSite.type}</small><br />
+                  <small>Status: {selectedSite.status}</small>
+                </div>
+              </InfoWindow>
+            )}
+
+            {polylinePath.length > 1 && (
+              <Polyline
+                path={polylinePath}
+                options={{
+                  strokeColor: '#0000FF',
+                  strokeOpacity: 1.0,
+                  strokeWeight: 3,
+                }}
+              />
+            )}
+          </GoogleMap>
+
+          <div className="mt-3">
+            <h6>Legend</h6>
+            <div className="d-flex flex-wrap gap-2">
+              {Object.entries(siteTypeColors).map(([type, color]) => (
+                <div key={type} className="d-flex align-items-center gap-1">
+                  <div 
+                    style={{
+                      width: '12px',
+                      height: '12px',
+                      backgroundColor: color,
+                      borderRadius: '50%',
+                      border: '1px solid #ccc'
+                    }}
+                  ></div>
+                  <small>{type.charAt(0).toUpperCase() + type.slice(1)}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <AddSiteModal
+            isOpen={addModalOpen}
+            onClose={() => {
+              setAddModalOpen(false);
+              setClickedLatLng(null);
+            }}
+            onSubmit={handleAddSite}
+            initialData={clickedLatLng ? { lat: clickedLatLng.lat, lng: clickedLatLng.lng } : {}}
+          />
+        </div>
+      </div>
+
+      <style>{`
         @media (max-width: 768px) {
-          #map {
+          .map-container div[style*="height"] {
             height: calc(100vh - 180px) !important;
             min-height: 350px !important;
           }
         }
-        
+
         @media (max-width: 576px) {
-          #map {
+          .map-container div[style*="height"] {
             height: calc(100vh - 160px) !important;
             min-height: 300px !important;
           }
-        }
-        
-        /* Ensure leaflet controls are touch-friendly */
-        .leaflet-control-zoom a {
-          width: 44px !important;
-          height: 44px !important;
-          line-height: 44px !important;
-          font-size: 18px !important;
-        }
-        
-        .leaflet-control-layers {
-          font-size: 14px !important;
-        }
-        
-        /* Better mobile popup styling */
-        .leaflet-popup-content {
-          margin: 10px 15px !important;
-          font-size: 14px !important;
-        }
-        
-        .leaflet-popup-content-wrapper {
-          border-radius: 8px !important;
         }
       `}</style>
     </div>
