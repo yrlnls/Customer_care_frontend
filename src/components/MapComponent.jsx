@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleMap, Marker, InfoWindow, Polyline, useLoadScript } from '@react-google-maps/api';
 import { useAuth } from '../context/AuthContext';
 import { useSites } from '../context/SitesContext';
@@ -8,6 +8,7 @@ const MapComponent = () => {
   const { sites, loadSites, addSite } = useSites();
   const { userRole: role } = useAuth();
   const canAddSite = role === 'admin' || role === 'tech';
+  const mapRef = useRef(null);
 
   const [selectedSite, setSelectedSite] = useState(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -40,6 +41,31 @@ const MapComponent = () => {
     mapTypeId: 'satellite',
     mapTypeControl: true,
   };
+
+  // Auto-fit map to show all sites when sites are loaded
+  useEffect(() => {
+    if (isLoaded && mapRef.current?.map && sites && sites.length > 0) {
+      const bounds = new window.google.maps.LatLngBounds();
+      sites.forEach(site => {
+        const lat = parseFloat(site.latitude || site.lat);
+        const lng = parseFloat(site.longitude || site.lng);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          bounds.extend({ lat, lng });
+        }
+      });
+      // Only fit bounds if we have valid coordinates
+      if (!bounds.isEmpty()) {
+        mapRef.current.map.fitBounds(bounds);
+        // Optional: Set a minimum zoom level to avoid zooming in too much
+        const listener = window.google.maps.event.addListener(mapRef.current.map, 'idle', () => {
+          if (mapRef.current.map.getZoom() > 16) {
+            mapRef.current.map.setZoom(16);
+          }
+          window.google.maps.event.removeListener(listener);
+        });
+      }
+    }
+  }, [sites, isLoaded]);
 
   const siteTypeColors = {
     office: '#007bff', // blue
@@ -153,6 +179,7 @@ const MapComponent = () => {
         </div>
         <div className="col-md-9">
           <GoogleMap
+            ref={mapRef}
             mapContainerStyle={mapContainerStyle}
             zoom={16}
             center={center}

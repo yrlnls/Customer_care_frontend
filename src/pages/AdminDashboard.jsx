@@ -236,7 +236,9 @@ function AdminDashboard() {
               <i className="bi bi-calendar-event display-4 text-info mb-2"></i>
               <Card.Title>Today's Tickets</Card.Title>
               <Card.Text className="display-4">{todaysTickets.length}</Card.Text>
-              <Button variant="outline-info" size="sm">View Today's</Button>
+              <Button variant="outside-info" size="sm" onClick={() => setTickets(todaysTickets)}>
+                View Today's
+              </Button>
             </Card.Body>
           </Card>
         </Col>
