@@ -43,7 +43,6 @@ export const SitesProvider = ({ children }) => {
   const addSite = async (siteData) => {
     try {
       console.log('Adding site with data:', siteData); // Debug log
-      // Backend create expects 'latitude' and 'longitude', but get returns 'lat' and 'lng'
       const transformedData = {
         ...siteData,
         latitude: siteData.lat || siteData.latitude,
