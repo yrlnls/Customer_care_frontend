@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
+// Ensure API calls use the correct BASE_URL and include credentials if needed for CORS
 export const useAPI = (apiCall, dependencies = []) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

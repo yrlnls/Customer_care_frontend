@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, Button, Badge, Form, Modal } from 'react-bootstrap';
 import { ticketsAPI } from '../../services/api';
 
-function TechnicianTickets({ tickets, updateTicket, refreshTickets }) {
+function TechnicianTickets({ tickets, updateTicket, refreshTickets, currentTechId }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [comment, setComment] = useState('');
@@ -23,14 +23,14 @@ function TechnicianTickets({ tickets, updateTicket, refreshTickets }) {
   };
   
   const handleStatusChange = (status) => {
-    if (selectedTicket) {
+    if (selectedTicket && selectedTicket.assigned_tech_id === currentTechId) {
       updateTicket(selectedTicket.id, { status });
       setSelectedTicket({ ...selectedTicket, status });
     }
   };
   
   const handleAddComment = async () => {
-    if (selectedTicket && comment.trim()) {
+    if (selectedTicket && comment.trim() && selectedTicket.assigned_tech_id === currentTechId) {
       try {
         await ticketsAPI.addComment(selectedTicket.id, comment);
         setComment('');
@@ -45,10 +45,10 @@ function TechnicianTickets({ tickets, updateTicket, refreshTickets }) {
   };
   
   const handleRecordTime = () => {
-    if (selectedTicket && timeSpent) {
+    if (selectedTicket && timeSpent && selectedTicket.assigned_tech_id === currentTechId) {
       const minutes = parseInt(timeSpent, 10);
       if (!isNaN(minutes) && minutes > 0) {
-        updateTicket(selectedTicket.id, { 
+        updateTicket(selectedTicket.id, {
           timeSpent: (selectedTicket.timeSpent || 0) + minutes
         });
         setTimeSpent('');
@@ -67,7 +67,7 @@ function TechnicianTickets({ tickets, updateTicket, refreshTickets }) {
   
   return (
     <div>
-      <h3 className="mb-3">Assigned Tickets</h3>
+      <h3 className="mb-3">All Tickets</h3>
       
       <div className="d-flex flex-wrap gap-3 mb-4">
         {tickets.map(ticket => (
@@ -112,72 +112,86 @@ function TechnicianTickets({ tickets, updateTicket, refreshTickets }) {
             
             <div className="mb-3">
               <h5>Update Status</h5>
-              <div className="d-flex gap-2">
-                <Button 
-                  size="sm"
-                  variant={selectedTicket.status === 'pending' ? 'primary' : 'outline-primary'}
-                  onClick={() => handleStatusChange('pending')}
-                >
-                  Pending
-                </Button>
-                <Button 
-                  size="sm"
-                  variant={selectedTicket.status === 'in-progress' ? 'primary' : 'outline-info'}
-                  onClick={() => handleStatusChange('in-progress')}
-                >
-                  In Progress
-                </Button>
-                <Button 
-                  size="sm"
-                  variant={selectedTicket.status === 'completed' ? 'primary' : 'outline-success'}
-                  onClick={() => handleStatusChange('completed')}
-                >
-                  Completed
-                </Button>
-              </div>
+              {selectedTicket.assigned_tech_id === currentTechId ? (
+                <div className="d-flex gap-2">
+                  <Button
+                    size="sm"
+                    variant={selectedTicket.status === 'pending' ? 'primary' : 'outline-primary'}
+                    onClick={() => handleStatusChange('pending')}
+                  >
+                    Pending
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={selectedTicket.status === 'in-progress' ? 'primary' : 'outline-info'}
+                    onClick={() => handleStatusChange('in-progress')}
+                  >
+                    In Progress
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={selectedTicket.status === 'completed' ? 'primary' : 'outline-success'}
+                    onClick={() => handleStatusChange('completed')}
+                  >
+                    Completed
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-muted">You can only update status for tickets assigned to you.</p>
+              )}
             </div>
             
             <div className="mb-3">
               <h5>Add Comment</h5>
-              <Form.Group>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Add a comment..."
-                />
-              </Form.Group>
-              <Button 
-                size="sm"
-                variant="primary" 
-                className="mt-2"
-                onClick={handleAddComment}
-                disabled={!comment.trim()}
-              >
-                Add Comment
-              </Button>
+              {selectedTicket.assigned_tech_id === currentTechId ? (
+                <>
+                  <Form.Group>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder="Add a comment..."
+                    />
+                  </Form.Group>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    className="mt-2"
+                    onClick={handleAddComment}
+                    disabled={!comment.trim()}
+                  >
+                    Add Comment
+                  </Button>
+                </>
+              ) : (
+                <p className="text-muted">You can only add comments to tickets assigned to you.</p>
+              )}
             </div>
             
             <div className="mb-3">
               <h5>Record Time Spent</h5>
-              <div className="d-flex gap-2">
-                <Form.Control
-                  type="number"
-                  placeholder="Minutes"
-                  value={timeSpent}
-                  onChange={(e) => setTimeSpent(e.target.value)}
-                  style={{ width: '100px' }}
-                />
-                <Button 
-                  size="sm"
-                  variant="warning"
-                  onClick={handleRecordTime}
-                  disabled={!timeSpent}
-                >
-                  Record Time
-                </Button>
-              </div>
+              {selectedTicket.assigned_tech_id === currentTechId ? (
+                <div className="d-flex gap-2">
+                  <Form.Control
+                    type="number"
+                    placeholder="Minutes"
+                    value={timeSpent}
+                    onChange={(e) => setTimeSpent(e.target.value)}
+                    style={{ width: '100px' }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    onClick={handleRecordTime}
+                    disabled={!timeSpent}
+                  >
+                    Record Time
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-muted">You can only record time for tickets assigned to you.</p>
+              )}
             </div>
             
             <div>

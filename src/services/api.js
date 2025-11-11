@@ -1,28 +1,30 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://customer-care-backend-v2n0.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://customercare.capitalfibersolution.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-    'subject': 'default',
+    'Content-Type': 'application/json'
   },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include auth token (but NOT for login requests)
 api.interceptors.request.use(
   (config) => {
+    // Don't add auth token for login requests
+    if (config.url.includes('/auth/login')) {
+      return config;
+    }
+
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Add response interceptor to handle auth errors
@@ -30,15 +32,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only redirect if not already on login page and not a login request
+      if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/login')) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
 );
 
-// Authentication API
+/* ---------------- Authentication API ---------------- */
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
@@ -46,7 +51,7 @@ export const authAPI = {
   updateProfile: (userData) => api.put('/auth/profile', userData),
 };
 
-// Tickets API
+/* ---------------- Tickets API ---------------- */
 export const ticketsAPI = {
   getAll: () => api.get('/tickets/'),
   getById: (id) => api.get(`/tickets/${id}`),
@@ -56,7 +61,7 @@ export const ticketsAPI = {
   addComment: (id, comment) => api.post(`/tickets/${id}/comments`, { comment }),
 };
 
-// Clients API
+/* ---------------- Clients API ---------------- */
 export const clientsAPI = {
   getAll: () => api.get('/clients/'),
   getById: (id) => api.get(`/clients/${id}`),
@@ -65,7 +70,7 @@ export const clientsAPI = {
   delete: (id) => api.delete(`/clients/${id}`),
 };
 
-// Users API
+/* ---------------- Users API ---------------- */
 export const usersAPI = {
   getAll: () => api.get('/users/'),
   create: (userData) => api.post('/users/', userData),
@@ -74,7 +79,7 @@ export const usersAPI = {
   getTechnicians: () => api.get('/users/technicians'),
 };
 
-// Sites API
+/* ---------------- Sites API ---------------- */
 export const sitesAPI = {
   getAll: () => api.get('/sites/'),
   create: (siteData) => api.post('/sites/', siteData),
@@ -82,7 +87,7 @@ export const sitesAPI = {
   delete: (id) => api.delete(`/sites/${id}`),
 };
 
-// Routers API
+/* ---------------- Routers API ---------------- */
 export const routersAPI = {
   getAll: () => api.get('/routers/'),
   create: (routerData) => api.post('/routers/', routerData),
@@ -91,14 +96,19 @@ export const routersAPI = {
   updateStatus: (id, status) => api.put(`/routers/${id}/status`, { status }),
 };
 
-// Analytics API
+/* ---------------- Analytics API ---------------- */
 export const analyticsAPI = {
   getDashboard: () => api.get('/analytics/dashboard'),
-  getActivityLog: () => api.get('/analytics/dashboard').then(res => ({ data: res.data.recent_activities })),
-  getPerformance: (days = 30) => api.get(`/analytics/performance?days=${days}`),
-  exportCSV: (type = 'tickets') => api.get(`/analytics/reports/csv?type=${type}`, {
-    responseType: 'blob',
-  }),
+  getActivityLog: () =>
+    api.get('/analytics/dashboard').then((res) => ({
+      data: res.data.recent_activities,
+    })),
+  getPerformance: (days = 30) =>
+    api.get(`/analytics/performance?days=${days}`),
+  exportCSV: (type = 'tickets') =>
+    api.get(`/analytics/reports/csv?type=${type}`, {
+      responseType: 'blob',
+    }),
 };
 
 export default api;

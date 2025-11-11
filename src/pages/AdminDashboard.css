@@ -1,0 +1,273 @@
+/* Admin Dashboard Custom Styles */
+
+.admin-dashboard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.stats-cards .card {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.stats-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+
+.stats-cards .card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.stats-cards .display-4 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stats-cards .btn {
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.quick-actions-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.quick-actions-card .card-header {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-radius: 15px 15px 0 0 !important;
+  border: none;
+}
+
+.quick-actions-grid .col-md-2 {
+  padding: 10px;
+}
+
+.quick-action-btn {
+  background: white;
+  border: none;
+  border-radius: 12px;
+  padding: 20px 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  background: #f8f9fa;
+}
+
+.quick-action-btn i {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: #007bff;
+}
+
+.quick-action-btn .btn-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.management-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.management-card .card-header {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border-radius: 15px 15px 0 0 !important;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.management-card .btn {
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.analytics-section .card {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  height: 100%;
+}
+
+/* Loading spinner */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: white;
+}
+
+.loading-container .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 10px;
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 576px) {
+  .admin-dashboard {
+    padding: 8px;
+  }
+  
+  .dashboard-header {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .stats-cards .col-md-3 {
+    margin-bottom: 15px;
+  }
+  
+  .stats-cards .card {
+    margin-bottom: 10px;
+  }
+  
+  .stats-cards .display-4 {
+    font-size: 2rem;
+  }
+  
+  .stats-cards .card-title {
+    font-size: 1rem;
+  }
+
+  .quick-actions-grid .col-md-2 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+  
+  .quick-action-btn {
+    padding: 15px 8px;
+    min-height: 80px;
+  }
+  
+  .quick-action-btn i {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+  
+  .quick-action-btn .btn-text {
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+  
+  .management-card .card-header {
+    padding: 15px;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .management-card .card-header h5 {
+    margin-bottom: 0;
+    font-size: 1.1rem;
+  }
+  
+  .analytics-section .col-md-8,
+  .analytics-section .col-md-4 {
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 12px;
+  }
+
+  .stats-cards .col-md-3 {
+    margin-bottom: 20px;
+  }
+
+  .quick-actions-grid .col-md-2 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 15px;
+  }
+  
+  .quick-action-btn {
+    padding: 18px 12px;
+  }
+  
+  .management-card .card-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 992px) {
+  .quick-actions-grid .col-md-2 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+}
+
+/* Landscape phone orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-dashboard {
+    padding: 10px;
+  }
+  
+  .dashboard-header {
+    margin-bottom: 15px;
+  }
+  
+  .stats-cards .col-md-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    margin-bottom: 10px;
+  }
+  
+  .quick-actions-grid .col-md-2 {
+    flex: 0 0 16.666667%;
+    max-width: 16.666667%;
+  }
+}

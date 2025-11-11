@@ -15,6 +15,7 @@ import SystemSettingsPage from './pages/SystemSettingsPage.jsx';
 import TechnicianMetricsPage from './pages/TechnicianMetricsPage.jsx';
 import MapComponent from './components/MapComponent.jsx';
 import SitesManagementPage from './pages/SitesManagementPage.jsx';
+import RouterManagementPage from './pages/RouterManagementPage.jsx';
 
 // ProtectedRoute component to handle role-based access
 function ProtectedRoute({ role, children }) {
@@ -118,9 +119,9 @@ function Layout() {
           </ProtectedRoute>
         } />
         
-        <Route path="/tech/sites" element={
-          <ProtectedRoute role="technician">
-            <SitesManagementPage />
+        <Route path="/admin/routers" element={
+          <ProtectedRoute role="admin">
+            <RouterManagementPage />
           </ProtectedRoute>
         } />
         

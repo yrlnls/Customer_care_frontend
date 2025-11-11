@@ -31,14 +31,18 @@ const SiteManager = ({ map, onSiteAdded, layerGroup }) => {
   // Expose edit and delete functions to global scope for popup buttons
   useEffect(() => {
     window.editSite = (siteId) => {
-      const site = sites.find(s => s._id === siteId);
+      // Ensure sites is always an array before searching
+      const sitesArray = Array.isArray(sites) ? sites : [];
+      const site = sitesArray.find(s => s._id === siteId);
       if (site) {
         handleEditClick(site);
       }
     };
 
     window.deleteSite = (siteId) => {
-      const site = sites.find(s => s._id === siteId);
+      // Ensure sites is always an array before searching
+      const sitesArray = Array.isArray(sites) ? sites : [];
+      const site = sitesArray.find(s => s._id === siteId);
       if (site) {
         handleDeleteSite(siteId);
       }
@@ -103,9 +107,11 @@ const SiteManager = ({ map, onSiteAdded, layerGroup }) => {
         throw new Error('Failed to delete site');
       }
 
+      // Ensure sites is always an array before filtering
+      const sitesArray = Array.isArray(sites) ? sites : [];
       setSites(prev => prev.filter(s => s._id !== siteId));
       layerGroup.clearLayers();
-      renderSitesOnMap(sites.filter(s => s._id !== siteId));
+      renderSitesOnMap(sitesArray.filter(s => s._id !== siteId));
     } catch (error) {
       setError(error.message || 'Failed to delete site');
       console.error('Error deleting site:', error);
@@ -177,10 +183,12 @@ const SiteManager = ({ map, onSiteAdded, layerGroup }) => {
         setSites(prev => [...prev, result.site]);
       }
       
+      // Ensure sites is always an array before mapping
+      const sitesArray = Array.isArray(sites) ? sites : [];
       layerGroup.clearLayers();
-      renderSitesOnMap(editingSite ? 
-        sites.map(s => s._id === editingSite._id ? result.site : s) : 
-        [...sites, result.site]
+      renderSitesOnMap(editingSite ?
+        sitesArray.map(s => s._id === editingSite._id ? result.site : s) :
+        [...sitesArray, result.site]
       );
       
       setNewSite({ name: '', lat: '', lng: '', description: '', type: 'office', status: 'active', address: '', contact: '' });

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Button, Card, Container, Form, Alert, Spinner } from 'react-bootstrap';
 
 function LoginPage() {
   const [credentials, setCredentials] = useState({
@@ -10,7 +9,7 @@ function LoginPage() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login, loading } = useAuth();
+  const { login, loading, user } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,91 +19,96 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!credentials.email || !credentials.password) {
       setError('Please enter both email and password');
       return;
     }
-    
+
     const result = await login(credentials);
-    if (result.success) {
-      // Navigation will be handled by the auth context
-      const user = JSON.parse(localStorage.getItem('user'));
+    if (result.success && result.user) {
+      // Use user data directly from login result
+      const userData = result.user;
+      
       // Map user roles to correct route paths
       const roleRoutes = {
         'admin': '/admin/dashboard',
         'agent': '/agent/dashboard',
         'technician': '/tech/dashboard'
       };
-      const dashboardRoute = roleRoutes[user.role] || '/login';
+      const dashboardRoute = roleRoutes[userData.role] || '/login';
       navigate(dashboardRoute);
+    } else if (result.success) {
+      // Fallback to localStorage if user data not in result
+      const userData = JSON.parse(localStorage.getItem('user'));
+      if (userData && userData.role) {
+        const roleRoutes = {
+          'admin': '/admin/dashboard',
+          'agent': '/agent/dashboard',
+          'technician': '/tech/dashboard'
+        };
+        const dashboardRoute = roleRoutes[userData.role] || '/login';
+        navigate(dashboardRoute);
+      } else {
+        setError('Login successful but user data not available. Please refresh the page.');
+      }
     } else {
       setError(result.error);
     }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: '24rem' }} className="p-4">
-        <Card.Body>
-          <Card.Title className="text-center mb-4">Customer Care System</Card.Title>
-          <Card.Subtitle className="mb-3 text-muted text-center">Please login to continue</Card.Subtitle>
-          
-          {error && <Alert variant="danger">{error}</Alert>}
-          
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                value={credentials.email}
-                onChange={handleInputChange}
-                placeholder="Enter your email"
-                required
-              />
-            </Form.Group>
-            
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                name="password"
-                value={credentials.password}
-                onChange={handleInputChange}
-                placeholder="Enter your password"
-                required
-              />
-            </Form.Group>
-            
-            <Button 
-              variant="primary" 
-              type="submit"
-              className="w-100"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  Logging in...
-                </>
-              ) : (
-                'Login'
-              )}
-            </Button>
-          </Form>
-          
-          <div className="mt-3">
-            <small className="text-muted">
-              Demo credentials:<br/>
-              Admin: admin@company.com / admin123<br/>
-              Agent: sarah.johnson@company.com / agent123<br/>
-              Tech: mike.wilson@company.com / tech123
-            </small>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="text-center mb-4 glow-text">Customer Care System</h2>
+        <p className="mb-3 text-secondary text-center">Please login to continue</p>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={handleInputChange}
+              placeholder="Enter your email"
+              className="form-control"
+              required
+            />
           </div>
-        </Card.Body>
-      </Card>
-    </Container>
+
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={handleInputChange}
+              placeholder="Enter your password"
+              className="form-control"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
 

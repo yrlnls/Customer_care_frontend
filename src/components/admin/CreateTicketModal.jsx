@@ -32,24 +32,20 @@ function CreateTicketModal({ show, onClose, onCreate, technicians, ticket, clien
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Find the selected technician's ID
+
     const selectedTechnician = technicians.find(tech => tech.name === assignedTo);
 
     const ticketData = {
-      id: ticket ? ticket.id : Date.now(),
       title,
-      assignedBy,
-      assignedTo,
+      priority: 'medium',
+      status: 'pending',
       assigned_tech_id: selectedTechnician ? selectedTechnician.id : null,
-      client_id: clientId,
-      dateAssigned,
-      timeAssigned,
-      timeCompleted: timeCompleted || null,
-    };
-    onCreate(ticketData);
-    onClose();
+      client_id: clientId || null,
   };
 
+  onCreate(ticketData);
+    onClose();
+  };
   return (
     <Modal show={show} onHide={onClose}>
       <Modal.Header closeButton>
@@ -87,19 +83,6 @@ function CreateTicketModal({ show, onClose, onCreate, technicians, ticket, clien
                 <option key={tech.id} value={tech.name}>{tech.name}</option>
               ))}
             </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formClient">
-            {/* <Form.Label>Client</Form.Label>
-            <Form.Select
-              value={clientId}
-              onChange={e => setClientId(e.target.value)}
-              required
-            >
-              <option value="">Select Client</option>
-              {clients.map(client => (
-                <option key={client.id} value={client.id}>{client.name}</option>
-              ))}
-            </Form.Select> */}
           </Form.Group>
           <Form.Group className="mb-3" controlId="formDateAssigned">
             <Form.Label>Date Assigned</Form.Label>

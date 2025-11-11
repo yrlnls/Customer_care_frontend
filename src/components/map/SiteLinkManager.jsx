@@ -9,10 +9,13 @@ const SiteLinkManager = ({ map, sites, layerGroup }) => {
     layerGroup.clearLayers();
 
     // Create routes between consecutive sites using OSRM
-    if (sites.length > 1) {
-      sites.forEach((site, index) => {
-        if (index < sites.length - 1) {
-          const nextSite = sites[index + 1];
+    // Ensure sites is always an array before iterating
+    const sitesArray = Array.isArray(sites) ? sites : [];
+
+    if (sitesArray.length > 1) {
+      sitesArray.forEach((site, index) => {
+        if (index < sitesArray.length - 1) {
+          const nextSite = sitesArray[index + 1];
           L.Routing.control({
             waypoints: [
               L.latLng(site.lat, site.lng),

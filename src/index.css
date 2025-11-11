@@ -1,18 +1,19 @@
-/* Updated color scheme with darker background */
+/* Futuristic blue-white theme */
 :root {
-  --bg-primary: #6179d9; /* Dark blue-gray */
-  --bg-secondary: #252836; /* Slightly lighter dark blue-gray */
-  --text-primary: #e9ecef;
-  --text-secondary: #ffffff;
-  --border-color: #495057;
-  --primary-color: #000000;
-  --secondary-color: #404a5a;
-  --success-color: #4cc9f0;
-  --danger-color: #ff6b6b;
-  --warning-color: #ffd166;
-  --info-color: #06d6a0;
-  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --transition: all 0.3s ease;
+  --bg-primary: linear-gradient(135deg, #0f0f23, #1a1a2e); /* Dark blue gradient */
+  --bg-secondary: rgba(255, 255, 255, 0.1); /* Semi-transparent white for glassmorphism */
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --border-color: rgba(255, 255, 255, 0.2);
+  --primary-color: #00d4ff; /* Neon blue */
+  --secondary-color: #0099cc;
+  --success-color: #00ff88;
+  --danger-color: #ff4444;
+  --warning-color: #ffaa00;
+  --info-color: #44aaff;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --glow-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
 }
 
 
@@ -23,11 +24,13 @@ html, body {
   margin: 0;
   padding: 0;
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary);
+  background-attachment: fixed;
 }
 
 code {
@@ -41,18 +44,22 @@ code {
 .text-secondary { color: var(--text-secondary) !important; }
 .border-color { border-color: var(--border-color) !important; }
 
-/* Card styling */
+/* Card styling with glassmorphism */
 .card {
-  background-color: var(--bg-secondary);
+  background: var(--bg-secondary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 16px;
   box-shadow: var(--card-shadow);
   transition: var(--transition);
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--glow-shadow), var(--card-shadow);
+  border-color: var(--primary-color);
 }
 
 /* Form styling */
@@ -70,22 +77,41 @@ code {
   box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
 }
 
-/* Button styling */
+/* Button styling with animations */
 .btn {
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-weight: 500;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
 }
 
 .btn-primary:hover {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
 }
 
 /* Table styling */
@@ -101,11 +127,15 @@ code {
   background-color: rgba(67, 97, 238, 0.1);
 }
 
-/* Modal styling */
+/* Modal styling with glassmorphism */
 .modal-content {
-  background-color: var(--bg-primary);
+  background: var(--bg-secondary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  animation: modalFadeIn 0.4s ease-out;
 }
 
 /* Tab styling */
@@ -148,26 +178,76 @@ code {
   background-color: rgba(67, 97, 238, 0.05);
 }
 
-/* Login page styles */
+/* Login page styles with futuristic effects */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: var(--bg-primary) url('/background-login.jpg') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%);
+  animation: pulse 4s ease-in-out infinite;
 }
 
 .login-card {
   width: 100%;
   max-width: 400px;
   padding: 2rem;
-  background-color: var(--bg-secondary);
-  border-radius: 8px;
+  background: var(--bg-secondary);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
   box-shadow: var(--card-shadow);
+  animation: slideInFromBottom 0.8s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 576px) {
+  .login-container {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+  
+  .login-card {
+    padding: 1.5rem;
+    margin: 0;
+    border-radius: 12px;
+    max-width: 100%;
+  }
+  
+  .login-card h2 {
+    font-size: 1.5rem;
+  }
+  
+  .login-card .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px 16px;
+  }
+  
+  .login-card .btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
 }
 /* Consistent alignment for all content */
 .container-main {
-  max-width: 100%fit-content;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -180,5 +260,176 @@ code {
 
 /* Body content alignment */
 .page-content {
-  padding: 0 0px;
+  padding: 0 20px;
+}
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Additional futuristic effects */
+.glow-text {
+  text-shadow: 0 0 10px var(--primary-color);
+}
+
+.neon-border {
+  border: 1px solid var(--primary-color);
+  box-shadow: var(--glow-shadow);
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 576px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container-main,
+  .container-fluid {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .card {
+    margin: 5px 0;
+    border-radius: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .login-card {
+    margin: 10px;
+    padding: 1.2rem;
+    max-width: 95vw;
+  }
+  
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+  
+  .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Hide less important table columns on mobile */
+  .table .d-none-mobile {
+    display: none !important;
+  }
+  
+  /* Stack form elements vertically */
+  .row .col-md-6,
+  .row .col-md-4,
+  .row .col-md-3 {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    margin: 8px 0;
+  }
+
+  .btn {
+    margin-bottom: 10px;
+  }
+
+  .login-card {
+    margin: 15px;
+    padding: 1.5rem;
+  }
+  
+  /* Responsive typography */
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.3rem; }
+  h4 { font-size: 1.1rem; }
+  h5 { font-size: 1rem; }
+  
+  /* Better spacing for mobile */
+  .p-5 { padding: 1.5rem !important; }
+  .py-5 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+  .mb-4 { margin-bottom: 1.5rem !important; }
+  
+  /* Touch-friendly sizing */
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .container-main {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* Better tablet experience */
+  .quick-actions-grid .col-md-2 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 15px;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover {
+    transform: none;
+  }
+  
+  .card:hover {
+    transform: none;
+  }
+  
+  /* Larger touch targets */
+  .btn {
+    min-height: 44px;
+  }
+  
+  .nav-link {
+    padding: 12px 16px;
+  }
 }

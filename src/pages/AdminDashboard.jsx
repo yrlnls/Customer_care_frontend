@@ -7,8 +7,11 @@ import CreateTicketModal from '../components/admin/CreateTicketModal.jsx';
 import ClientsTable from '../components/agent/ClientsTable.jsx';
 import ClientForm from '../components/agent/ClientForm.jsx';
 import { ticketsAPI, usersAPI, clientsAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import './AdminDashboard.css';
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [technicians, setTechnicians] = useState([]);
   const [clients, setClients] = useState([]);
@@ -167,15 +170,39 @@ function AdminDashboard() {
 
   // Get today's tickets
   const todaysTickets = tickets.filter(ticket =>
-    ticket.dateAssigned === new Date().toISOString().slice(0, 10)
+    ticket.created_at && new Date(ticket.created_at).toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10)
   );
 
   const completedTickets = tickets.filter(ticket => ticket.timeCompleted);
   const pendingTickets = tickets.filter(ticket => !ticket.timeCompleted);
 
+  const handleNavigateToUsers = () => {
+    navigate('/admin/manage-users');
+  };
+
+  const handleNavigateToReports = () => {
+    navigate('/admin/view-reports');
+  };
+
+  const handleNavigateToSettings = () => {
+    navigate('/admin/system-settings');
+  };
+
+  const handleNavigateToMetrics = () => {
+    navigate('/admin/technician-metrics');
+  };
+
+  const handleNavigateToSites = () => {
+    navigate('/admin/sites');
+  };
+
+  const handleNavigateToRouters = () => {
+    navigate('/admin/routers');
+  };
+
   if (loading) {
     return (
-      <div className="p-4 text-center">
+      <div className="loading-container">
         <Spinner animation="border" role="status" />
         <div>Loading...</div>
       </div>
@@ -183,8 +210,8 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="mb-4">Admin Dashboard</h2>
+    <div className="admin-dashboard">
+      <h2 className="dashboard-header">Admin Dashboard</h2>
 
       {alert && (
         <Alert variant={alert.variant} dismissible onClose={() => setAlert(null)}>
@@ -192,36 +219,133 @@ function AdminDashboard() {
         </Alert>
       )}
 
-      <Row className="mb-4">
+      <Row className="mb-4 stats-cards">
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-ticket-detailed display-4 text-primary mb-2"></i>
               <Card.Title>Total Tickets</Card.Title>
               <Card.Text className="display-4">{tickets.length}</Card.Text>
+              <Button variant="outline-primary" size="sm">View All</Button>
             </Card.Body>
           </Card>
         </Col>
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-calendar-event display-4 text-info mb-2"></i>
               <Card.Title>Today's Tickets</Card.Title>
               <Card.Text className="display-4">{todaysTickets.length}</Card.Text>
+              <Button variant="outside-info" size="sm" onClick={() => setTickets(todaysTickets)}>
+                View Today's
+              </Button>
             </Card.Body>
           </Card>
         </Col>
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-clock display-4 text-warning mb-2"></i>
               <Card.Title>Pending Tickets</Card.Title>
               <Card.Text className="display-4">{pendingTickets.length}</Card.Text>
+              <Button variant="outline-warning" size="sm">View Pending</Button>
             </Card.Body>
           </Card>
         </Col>
         <Col md={3}>
           <Card className="text-center">
             <Card.Body>
+              <i className="bi bi-check-circle display-4 text-success mb-2"></i>
               <Card.Title>Completed Today</Card.Title>
               <Card.Text className="display-4">{completedTickets.length}</Card.Text>
+              <Button variant="outline-success" size="sm">View Completed</Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Quick Actions Row */}
+      <Row className="mb-4">
+        <Col md={12}>
+          <Card className="quick-actions-card">
+            <Card.Header>
+              <h5 className="mb-0">Quick Actions</h5>
+            </Card.Header>
+            <Card.Body>
+              <Row className="quick-actions-grid">
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={handleNavigateToUsers}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-people"></i>
+                    <div className="btn-text">Manage Users</div>
+                  </div>
+                </Col>
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={handleNavigateToSites}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-geo-alt"></i>
+                    <div className="btn-text">Sites Management</div>
+                  </div>
+                </Col>
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={handleNavigateToRouters}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-router"></i>
+                    <div className="btn-text">Router Management</div>
+                  </div>
+                </Col>
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={handleNavigateToReports}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-file-earmark-text"></i>
+                    <div className="btn-text">View Reports</div>
+                  </div>
+                </Col>
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={handleNavigateToSettings}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-gear"></i>
+                    <div className="btn-text">System Settings</div>
+                  </div>
+                </Col>
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={handleNavigateToMetrics}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-graph-up"></i>
+                    <div className="btn-text">Tech Metrics</div>
+                  </div>
+                </Col>
+              </Row>
+              <Row className="quick-actions-grid mt-2">
+                <Col md={2}>
+                  <div
+                    className="quick-action-btn"
+                    onClick={() => navigate('/map')}
+                    style={{cursor: 'pointer'}}
+                  >
+                    <i className="bi bi-map"></i>
+                    <div className="btn-text">View Map</div>
+                  </div>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         </Col>
@@ -229,7 +353,7 @@ function AdminDashboard() {
 
       <Row className="mb-4">
         <Col md={12}>
-          <Card className="mb-4">
+          <Card className="management-card">
             <Card.Header className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Ticket Management</h5>
               <Button variant="primary" onClick={() => setShowCreateModal(true)}>
@@ -251,7 +375,7 @@ function AdminDashboard() {
 
       <Row className="mb-4">
         <Col md={12}>
-          <Card className="mb-4">
+          <Card className="management-card">
             <Card.Header className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Client Management</h5>
               <Button variant="success" onClick={handleAddClient}>
@@ -271,7 +395,7 @@ function AdminDashboard() {
         </Col>
       </Row>
 
-      <Row className="mb-4">
+      <Row className="mb-4 analytics-section">
         <Col md={8}>
           <TicketAnalytics />
         </Col>
